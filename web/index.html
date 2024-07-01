@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+      If you are serving your web app in a path other than the root, change the
+      href value below to reflect the base path you are serving from.
+
+      The path provided below has to start and end with a slash "/" in order for
+      it to work correctly.
+
+      For more details:
+      * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+      This is a placeholder for base href that will be replaced by the value of
+      the `--base-href` argument provided to `flutter build`.
+    -->
+    <base href="$FLUTTER_BASE_HREF">
+
+    <meta charset="UTF-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="description" content="Scheduler application">
+
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="th_scheduler">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png"/>
+
+    <title>th_scheduler</title>
+    <link rel="manifest" href="manifest.json">
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+<!--    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>-->
+<!--    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>-->
+<!--    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>-->
+
+<!--    <script>-->
+<!--        // Your web app's Firebase configuration-->
+<!--        var firebaseConfig = {-->
+<!--          apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",-->
+<!--          authDomain: "th-scheduler-89eaa.firebaseapp.com",-->
+<!--          projectId: "th-scheduler-89eaa",-->
+<!--          storageBucket: "th-scheduler-89eaa.appspot.com",-->
+<!--          messagingSenderId: "463945083186",-->
+<!--          appId: "1:463945083186:web:34512eb8d7072853174f2b",-->
+<!--          measurementId: "G-18PVB1NE03"-->
+<!--        };-->
+<!--        // Initialize Firebase-->
+<!--        firebase.initializeApp(firebaseConfig);-->
+<!--    </script>-->
+
+    <script>
+        // The value below is injected by flutter build, do not touch.
+        const serviceWorkerVersion = null;
+    </script>
+    <script src="flutter.js" defer></script>
+</head>
+<body>
+<script>
+    window.addEventListener('load', function(ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+</script>
+</body>
+</html>

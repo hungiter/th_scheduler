@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "463945083186",
+    "firebase_url": "https://th-scheduler-89eaa-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "th-scheduler-89eaa",
+    "storage_bucket": "th-scheduler-89eaa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463945083186:android:2ea44cb4266e8b21174f2b",
+        "android_client_info": {
+          "package_name": "tdtu.tttn.th_scheduler"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "463945083186-8ss7ofjiridq413vec7ufjek8t95n6kf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tdtu.tttn.th_scheduler",
+            "certificate_hash": "9e103632f890889843a9ef6a4215e3b5f78479ec"
+          }
+        },
+        {
+          "client_id": "463945083186-27njs6s78lf4i8j3lrecip5ad78p501q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvRztY-GCL25w1o1D0bH5Lq6g8PxJZLsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "463945083186-27njs6s78lf4i8j3lrecip5ad78p501q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
