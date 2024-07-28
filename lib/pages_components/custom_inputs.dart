@@ -2,7 +2,6 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
-import 'custom_buttons.dart';
 
 class InputRow extends StatelessWidget {
   final String textFieldLabel;
@@ -39,6 +38,7 @@ class InputRowWithSuffix extends StatelessWidget {
   final IconData enableIcon;
   final IconData disableIcon;
   final TextInputType inputType;
+  final ValueChanged<String> onTextChanged;
   final VoidCallback suffixClick;
 
   const InputRowWithSuffix(
@@ -50,6 +50,7 @@ class InputRowWithSuffix extends StatelessWidget {
       required this.enableIcon,
       required this.disableIcon,
       required this.inputType,
+      required this.onTextChanged,
       required this.suffixClick});
 
   @override
@@ -61,6 +62,7 @@ class InputRowWithSuffix extends StatelessWidget {
           child: TextField(
             obscureText: obscureText,
             controller: controller,
+            onChanged: onTextChanged,
             decoration: InputDecoration(
               labelText: textFieldLabel,
               border: const OutlineInputBorder(),
@@ -173,7 +175,8 @@ class OTPInputWidget extends StatelessWidget {
   final double height;
   final Function(String) onOTPCompleted;
 
-  const OTPInputWidget({super.key, required this.height, required this.onOTPCompleted});
+  const OTPInputWidget(
+      {super.key, required this.height, required this.onOTPCompleted});
 
   @override
   Widget build(BuildContext context) {

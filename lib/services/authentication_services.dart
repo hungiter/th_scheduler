@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:th_scheduler/services/preferences_manager.dart';
+import 'package:th_scheduler/utilities/firestore_handler.dart';
 import '../data/user.dart';
 
 class AuthService {
@@ -11,13 +14,14 @@ class AuthService {
 
   // Function to sign in with phone number
   Future<void> signInWithPhoneNumber(
-      String phoneNumber,
-      Function(String) codeSentCallback,
-      Function(FirebaseAuthException) verificationFailedCallback) async {
+    String phoneNumber,
+    Function(String) codeSentCallback,
+    Function(FirebaseAuthException) verificationFailedCallback,
+  ) async {
+    // Android (or other platforms) configuration
     await _auth.verifyPhoneNumber(
       phoneNumber: phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto-sign in the user if verification is successful
         await _auth.signInWithCredential(credential);
         User? user = _auth.currentUser;
         if (user != null) {
@@ -34,7 +38,7 @@ class AuthService {
     );
   }
 
-  // Function to sign in with OTP code
+// Function to sign in with OTP code
   Future<User?> signInWithOTP(String verificationId, String otp,
       Function(FirebaseAuthException) verificationFailedCallback) async {
     try {
@@ -54,54 +58,53 @@ class AuthService {
     }
   }
 
+// Sign in with password
+  Future<void> signInWithPassword(String phoneNumber, String password,
+      Function(String) errorListener, Function(Users) successListener) async {
+    await FirestoreHandler().getUserForLogin(phoneToId(phoneNumber), password,
+        (String e) {
+      errorListener(e);
+    }, (Users user) {
+      PreferencesManager.setUserDataToSP(user);
+      successListener(user);
+    });
+  }
+
+  String phoneToId(String phoneNumber) {
+    List<String> partSplitter = phoneNumber.split(' ');
+    return partSplitter[0] + partSplitter[1].substring(1);
+  }
+
 // Function to create or update user in Firestore
   Future<void> _createOrUpdateUser(User firebaseUser) async {
     final userRef =
         _firestore.collection('users').doc(firebaseUser.phoneNumber);
-    final doc = await userRef.get();
+    var doc = await userRef.get();
 
     if (!doc.exists) {
       // Create a new user if it doesn't exist
       Users newUser = Users(
         id: firebaseUser.uid,
-        phoneNumber: firebaseUser.phoneNumber!,
-        email: firebaseUser.email ?? '',
+        email: '',
+        password: '111111',
         displayName:
             'User+${(await _firestore.collection('users').get()).docs.length + 1}',
-        photoUrl: firebaseUser.photoURL ?? '',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         lastLogin: DateTime.now(),
       );
-      await userRef.set(newUser.toFirestore());
+      await userRef.set(newUser.toJson());
+      PreferencesManager.setUserDataToSP(newUser);
     } else {
       // Update user if they already exist
-      await userRef.update({
-        'lastLogin': FieldValue.serverTimestamp(),
-        'photoUrl': firebaseUser.photoURL,
-        'displayName': firebaseUser.displayName,
-      });
+      await userRef.update({'lastLogin': FieldValue.serverTimestamp()});
+      doc = await userRef.get();
+      PreferencesManager.setUserDataToSP(Users.fromFirestore(doc));
     }
   }
 
   void signOut() async {
-    SharedPreferences s = await SharedPreferences.getInstance();
-    s.clear();
+    PreferencesManager.removePreferences("user_model");
     await _auth.signOut();
   }
-
-// STORING DATA LOCALLY
-  Future<void> saveUserDataToSP(Users user) async {
-    SharedPreferences s = await SharedPreferences.getInstance();
-    await s.setString("user_model", jsonEncode(user.toFirestore()));
-  }
-
-  Future<String> getUserIdFromSP() async {
-    SharedPreferences s = await SharedPreferences.getInstance();
-    String data = s.getString("user_model") ?? '';
-    Users _user = Users.fromFirestore(jsonDecode(data));
-    return _user.id;
-  }
-
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
 }

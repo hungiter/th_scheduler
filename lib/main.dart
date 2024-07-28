@@ -5,6 +5,8 @@ import 'services/authentication_services.dart';
 import 'firebase_options.dart';
 import 'pages/pages_handle.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -13,7 +15,19 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  MyApp();
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -21,13 +35,14 @@ class MyApp extends StatelessWidget {
         Provider<AuthService>(create: (_) => AuthService()),
       ],
       child: MaterialApp(
-        title: 'TH Hotel Scheduler',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        debugShowCheckedModeBanner: false,
-        home: WelcomeScreen(), // Ensure this is the correct starting screen
-      ),
+          title: 'TH Hotel Scheduler',
+          navigatorKey: navigatorKey,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          debugShowCheckedModeBanner: false,
+          home: WelcomeScreen() // Ensure this is the correct starting screen
+          ),
     );
   }
 }

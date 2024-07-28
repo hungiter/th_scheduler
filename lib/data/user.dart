@@ -2,20 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Users {
   final String id;
-  final String phoneNumber;
   final String email;
+  final String password;
   final String displayName;
-  final String photoUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime lastLogin;
 
   Users({
     required this.id,
-    required this.phoneNumber,
     required this.email,
+    required this.password,
     required this.displayName,
-    required this.photoUrl,
     required this.createdAt,
     required this.updatedAt,
     required this.lastLogin,
@@ -23,11 +21,10 @@ class Users {
 
   static Users init() {
     return Users(
-      id: 'init',
-      phoneNumber: '0000000000',
+      id: '',
       email: '',
+      password: '111111',
       displayName: 'Init User',
-      photoUrl: 'https://example.com/photo.jpg',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       lastLogin: DateTime.now(),
@@ -39,26 +36,37 @@ class Users {
     final data = doc.data() as Map<String, dynamic>;
     return Users(
       id: doc.id,
-      phoneNumber: data['phoneNumber'] ?? '',
       email: data['email'] ?? '',
+      password: data['password'] ?? '',
       displayName: data['displayName'] ?? '',
-      photoUrl: data['photoUrl'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastLogin: (data['lastLogin'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
-  // Method to convert a User instance to a Firestore-compatible map
-  Map<String, dynamic> toFirestore() {
+  factory Users.fromJson(Map<String, dynamic> json) {
+    return Users(
+      id: json['id'],
+      email: json['email'] ?? '',
+      password: json['password'] ?? '',
+      displayName: json['displayName'] ?? '',
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      lastLogin: DateTime.parse(json['lastLogin']),
+    );
+  }
+
+  // Method to convert a User instance to a JSON-compatible map
+  Map<String, dynamic> toJson() {
     return {
-      'phoneNumber': phoneNumber,
+      'id': id,
       'email': email,
+      'password': password,
       'displayName': displayName,
-      'photoUrl': photoUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      'lastLogin': Timestamp.fromDate(lastLogin),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'lastLogin': lastLogin.toIso8601String(),
     };
   }
 }
