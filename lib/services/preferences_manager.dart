@@ -18,11 +18,13 @@ class PreferencesManager {
   static Future<void> setUserDataToSP(Users user) async {
     SharedPreferences s = await SharedPreferences.getInstance();
     await s.setString("user_model", jsonEncode(user.toJson()));
+    // debugPrint("Set ${user.toJson().toString()}");
   }
 
   static Future<Map<String, dynamic>> getUserDataFromSP() async {
     SharedPreferences s = await SharedPreferences.getInstance();
     String data = s.getString("user_model") ?? '';
+    // debugPrint("Get $data");
 
     if (data.isEmpty) {
       return {};

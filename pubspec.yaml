@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
+  cupertino_icons: #^1.0.6
+  shared_preferences: #^2.0.15
   intl: #dateFormatter
   provider: #multiProvider for different login type
   firebase_core:
@@ -17,9 +18,10 @@ dependencies:
   firebase_auth_web:
   cloud_firestore:
   firebase_database:
-  country_picker: ^2.0.18 # Phone Number Widget
-  shared_preferences: ^2.0.15
-  pinput: ^2.2.16 # OTP Widget
+  country_picker: #^2.0.18 #Phone Number Country Picker
+  twilio_flutter: #^0.3.0
+  pinput: #^2.2.16 #OTP Widget
+  fluttertoast: #^8.0.9 #UI helper (error show)
 
 dev_dependencies:
   flutter_test:

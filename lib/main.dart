@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:th_scheduler/services/preferences_manager.dart';
 import 'services/authentication_services.dart';
 import 'firebase_options.dart';
 import 'pages/pages_handle.dart';
@@ -26,6 +27,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    initValueToTest();
+  }
+
+  Future<void> initValueToTest() async {
+    PreferencesManager.removePreferences("user_model");
   }
 
   @override

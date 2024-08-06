@@ -1,64 +1,136 @@
-import 'dart:convert';
+import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../data/user.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:twilio_flutter/twilio_flutter.dart';
 import 'package:th_scheduler/services/preferences_manager.dart';
 import 'package:th_scheduler/utilities/firestore_handler.dart';
-import '../data/user.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Function to sign in with phone number
-  Future<void> signInWithPhoneNumber(
-    String phoneNumber,
-    Function(String) codeSentCallback,
-    Function(FirebaseAuthException) verificationFailedCallback,
-  ) async {
-    // Android (or other platforms) configuration
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
-        User? user = _auth.currentUser;
-        if (user != null) {
-          await _createOrUpdateUser(user);
-        }
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        verificationFailedCallback(e);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        codeSentCallback(verificationId);
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
+  late TwilioFlutter _twilioFlutter;
+
+  AuthService() {
+    // Looking on keys.txt for key
+    _twilioFlutter = TwilioFlutter(
+      accountSid: 'keys row 1',
+      authToken: 'keys row 2',
+      twilioNumber:
+          'keys row 3 4', // Should switch to AU PhoneNumber -> Except A2P 10DLC
     );
   }
 
-// Function to sign in with OTP code
-  Future<User?> signInWithOTP(String verificationId, String otp,
-      Function(FirebaseAuthException) verificationFailedCallback) async {
-    try {
-      final AuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
-      );
+  String generateOtp() {
+    final random = Random();
+    return (100000 + random.nextInt(900000))
+        .toString(); // Generates a 6-digit OTP
+  }
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      User? user = userCredential.user;
-      if (user != null) {
-        await _createOrUpdateUser(user);
+  // Function to verify phone number format and send OTP
+  Future<void> sendOtpAndCreateTmpUser(
+      String phoneNumber,
+      Function(FirebaseAuthException) verificationFailedCallback,
+      Function(String otp) successCallback) async {
+    // Phone format: +84908670...
+    if (!isValidPhoneNumber(phoneNumber)) {
+      FirebaseAuthException exception = FirebaseAuthException(
+        code: 'invalid-phone-number',
+        message: 'The phone number is not in the correct format.',
+      );
+      verificationFailedCallback(exception);
+    } else {
+      String otp = generateOtp();
+
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(phoneNumber).get();
+      if (!userDoc.exists) {
+        await _firestore
+            .collection('users')
+            .doc(phoneNumber)
+            .set({'otp': otp, 'isVerified': false});
+      } else {
+        bool isVerified = userDoc.get('isVerified');
+        if (isVerified) {
+          await _firestore
+              .collection('users')
+              .doc(phoneNumber)
+              .update({'otp': otp});
+        } else {
+          await _firestore
+              .collection('users')
+              .doc(phoneNumber)
+              .set({'otp': otp, 'isVerified': false});
+        }
       }
-    } on FirebaseAuthException catch (e) {
-      verificationFailedCallback(e);
+
+      await _twilioFlutter.sendSMS(
+        toNumber: phoneNumber,
+        messageBody: 'Your OTP code is $otp',
+      );
+      successCallback(otp);
     }
   }
 
-// Sign in with password
+  Future<void> verifyOtp(
+      String phoneNumber,
+      String inputOtp,
+      Function(FirebaseAuthException) verificationFailedCallback,
+      Function() successCallback) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(phoneNumber).get();
+    if (!userDoc.exists) {
+      FirebaseAuthException exception = FirebaseAuthException(
+        code: 'user-not-found',
+        message: 'No user found for this phone number.',
+      );
+      verificationFailedCallback(exception);
+    } else {
+      String storedOtp = userDoc.get('otp');
+      bool isVerified = userDoc.get('isVerified');
+      if (inputOtp == storedOtp) {
+        if (isVerified) {
+          await _firestore
+              .collection('users')
+              .doc(phoneNumber)
+              .update({'otp': FieldValue.delete()});
+        } else {
+          // On Create
+          await _firestore.collection('users').doc(phoneNumber).update({
+            'id': phoneNumber,
+            'otp': FieldValue.delete(),
+            'email': '',
+            'password': '111111',
+            'displayName':
+                'User+${(await _firestore.collection('users').get()).docs.length}',
+            'isVerified': true,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp()
+          });
+        }
+
+        await _updateUserPrefs(phoneNumber);
+
+        successCallback();
+      } else {
+        FirebaseAuthException exception = FirebaseAuthException(
+          code: 'otp-wrong',
+          message: 'Wrong OTP',
+        );
+        verificationFailedCallback(exception);
+      }
+    }
+  }
+
+  bool isValidPhoneNumber(String phoneNumber) {
+    final RegExp phoneRegExp = RegExp(r'^\+\d{1,14}$');
+    return phoneRegExp.hasMatch(phoneNumber);
+  }
+
+  // Sign in with password
   Future<void> signInWithPassword(String phoneNumber, String password,
       Function(String) errorListener, Function(Users) successListener) async {
     await FirestoreHandler().getUserForLogin(phoneToId(phoneNumber), password,
@@ -76,31 +148,14 @@ class AuthService {
   }
 
 // Function to create or update user in Firestore
-  Future<void> _createOrUpdateUser(User firebaseUser) async {
-    final userRef =
-        _firestore.collection('users').doc(firebaseUser.phoneNumber);
+  Future<void> _updateUserPrefs(String phoneNumber) async {
+    final userRef = _firestore.collection('users').doc(phoneNumber);
     var doc = await userRef.get();
 
-    if (!doc.exists) {
-      // Create a new user if it doesn't exist
-      Users newUser = Users(
-        id: firebaseUser.uid,
-        email: '',
-        password: '111111',
-        displayName:
-            'User+${(await _firestore.collection('users').get()).docs.length + 1}',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        lastLogin: DateTime.now(),
-      );
-      await userRef.set(newUser.toJson());
-      PreferencesManager.setUserDataToSP(newUser);
-    } else {
-      // Update user if they already exist
-      await userRef.update({'lastLogin': FieldValue.serverTimestamp()});
-      doc = await userRef.get();
-      PreferencesManager.setUserDataToSP(Users.fromFirestore(doc));
-    }
+    // At this step, doc never null
+    await userRef.update({'lastLogin': FieldValue.serverTimestamp()});
+    doc = await userRef.get();
+    PreferencesManager.setUserDataToSP(Users.fromFirestore(doc));
   }
 
   void signOut() async {

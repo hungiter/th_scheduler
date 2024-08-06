@@ -1,12 +1,14 @@
-import 'package:country_picker/country_picker.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:th_scheduler/pages_components/custom_inputs.dart';
-import 'package:th_scheduler/data/user.dart';
 import 'package:th_scheduler/main.dart';
-import 'package:th_scheduler/pages_components/custom_buttons.dart';
-import 'package:th_scheduler/services/authentication_services.dart';
+import 'auth_otp_screen.dart';
 import 'responsive/homepage.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:th_scheduler/pages_components/custom_inputs.dart';
+import 'package:th_scheduler/pages_components/custom_buttons.dart';
+
+import 'package:th_scheduler/data/user.dart';
+import 'package:th_scheduler/services/authentication_services.dart';
 
 class LoginWithPasswordScreen extends StatefulWidget {
   @override
@@ -69,98 +71,220 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
     );
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     backgroundColor: Colors.lightBlueAccent,
+  //     body: SafeArea(
+  //       child: Center(
+  //         child: Padding(
+  //           padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               ClipRRect(
+  //                 borderRadius: BorderRadius.circular(100.0),
+  //                 // Set the desired border radius
+  //                 child: Image.asset(
+  //                   "assets/logo.png",
+  //                   width: 200,
+  //                   height: 200,
+  //                   fit: BoxFit.cover, // Adjust the fit as needed
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 40),
+  //               Wrap(
+  //                 children: [
+  //                   Container(
+  //                       width: (kIsWeb) ? 600 : double.infinity,
+  //                       padding: const EdgeInsets.symmetric(
+  //                           vertical: 25, horizontal: 35),
+  //                       decoration: BoxDecoration(
+  //                           color: Colors.white,
+  //                           border: Border.all(
+  //                             style: BorderStyle.solid,
+  //                             color: Colors.blue,
+  //                           ),
+  //                           borderRadius:
+  //                               const BorderRadius.all(Radius.circular(8))),
+  //                       child: Column(
+  //                         children: [
+  //                           PhoneInputWidget(
+  //                             height: 50,
+  //                             phoneController: _phoneController,
+  //                             selectedCountry: selectedCountry,
+  //                             onPhoneChanged: (value) {
+  //                               setState(() {
+  //                                 _error = "";
+  //                               });
+  //                             },
+  //                             onCountryChanged: (country) {
+  //                               setState(() {
+  //                                 _error = "";
+  //                                 selectedCountry = country;
+  //                               });
+  //                             },
+  //                           ),
+  //                           const SizedBox(height: 10),
+  //                           InputRowWithSuffix(
+  //                             textFieldLabel: "Password",
+  //                             controller: _passwordController,
+  //                             height: 50,
+  //                             obscureText: passInvisible,
+  //                             enableIcon: visibleIcon,
+  //                             disableIcon: invisibleIcon,
+  //                             inputType: TextInputType.visiblePassword,
+  //                             onTextChanged: (value) {
+  //                               setState(() {
+  //                                 _error = "";
+  //                               });
+  //                             },
+  //                             suffixClick: () {
+  //                               setState(() {
+  //                                 passInvisible = !passInvisible;
+  //                               });
+  //                             },
+  //                           ),
+  //                           SizedBox(
+  //                             height: 50,
+  //                             width: double.maxFinite,
+  //                             child: Container(
+  //                                 padding: const EdgeInsets.only(top: 5),
+  //                                 child: LoginFormButton(
+  //                                     text: "Xác nhận",
+  //                                     btnColor: Colors.green,
+  //                                     txtColor: Colors.white,
+  //                                     onPressed: () async {
+  //                                       _loginCheck();
+  //                                     })),
+  //                           ),
+  //                         ],
+  //                       )),
+  //                 ],
+  //               )
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.lightBlueAccent,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
-                  // Set the desired border radius
-                  child: Image.asset(
-                    "assets/logo.png",
-                    width: 200,
-                    height: 200,
-                    fit: BoxFit.cover, // Adjust the fit as needed
+        child: SingleChildScrollView(
+          child: Align(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // Adjust column height to fit content
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100.0),
+                    child: Image.asset(
+                      "assets/logo.png",
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                Wrap(
-                  children: [
-                    Container(
-                        width: (kIsWeb) ? 600 : double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 25, horizontal: 35),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              style: BorderStyle.solid,
-                              color: Colors.blue,
-                            ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(8))),
-                        child: Column(
-                          children: [
-                            PhoneInputWidget(
-                              height: 50,
-                              phoneController: _phoneController,
-                              selectedCountry: selectedCountry,
-                              onPhoneChanged: (value) {
-                                setState(() {
-                                  _error = "";
-                                });
+                  const SizedBox(height: 40),
+                  Container(
+                    width: (kIsWeb) ? 600 : double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 25, horizontal: 35),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        style: BorderStyle.solid,
+                        color: Colors.blue,
+                      ),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Column(
+                      children: [
+                        PhoneInputWidget(
+                          height: 50,
+                          phoneController: _phoneController,
+                          selectedCountry: selectedCountry,
+                          onPhoneChanged: (value) {
+                            setState(() {
+                              _error = "";
+                            });
+                          },
+                          onCountryChanged: (country) {
+                            setState(() {
+                              _error = "";
+                              selectedCountry = country;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        InputRowWithSuffix(
+                          textFieldLabel: "Password",
+                          controller: _passwordController,
+                          height: 50,
+                          obscureText: passInvisible,
+                          enableIcon: visibleIcon,
+                          disableIcon: invisibleIcon,
+                          inputType: TextInputType.visiblePassword,
+                          onTextChanged: (value) {
+                            setState(() {
+                              _error = "";
+                            });
+                          },
+                          suffixClick: () {
+                            setState(() {
+                              passInvisible = !passInvisible;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 50,
+                          width: double.maxFinite,
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: LoginFormButton(
+                              text: "Xác nhận",
+                              btnColor: Colors.green,
+                              txtColor: Colors.white,
+                              onPressed: () async {
+                                _loginCheck();
                               },
-                              onCountryChanged: (country) {
-                                setState(() {
-                                  _error = "";
-                                  selectedCountry = country;
-                                });
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 50,
+                          width: double.maxFinite,
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: LoginFormButton(
+                              text: "Đăng ký / Đăng nhập với OTP",
+                              btnColor: Colors.blue,
+                              txtColor: Colors.white,
+                              onPressed: () {
+                                navigatorKey.currentState?.pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        LoginWithOTPScreen(), // Replace with your home screen
+                                  ),
+                                );
                               },
                             ),
-                            const SizedBox(height: 10),
-                            InputRowWithSuffix(
-                              textFieldLabel: "Password",
-                              controller: _passwordController,
-                              height: 50,
-                              obscureText: passInvisible,
-                              enableIcon: visibleIcon,
-                              disableIcon: invisibleIcon,
-                              inputType: TextInputType.visiblePassword,
-                              onTextChanged: (value) {
-                                setState(() {
-                                  _error = "";
-                                });
-                              },
-                              suffixClick: () {
-                                setState(() {
-                                  passInvisible = !passInvisible;
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              height: 50,
-                              width: double.maxFinite,
-                              child: Container(
-                                  padding: const EdgeInsets.only(top: 5),
-                                  child: LoginFormButton(
-                                      text: "Xác nhận",
-                                      btnColor: Colors.green,
-                                      txtColor: Colors.white,
-                                      onPressed: () async {
-                                        _loginCheck();
-                                      })),
-                            ),
-                          ],
-                        )),
-                  ],
-                )
-              ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
