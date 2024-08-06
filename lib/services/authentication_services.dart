@@ -17,10 +17,10 @@ class AuthService {
   AuthService() {
     // Looking on keys.txt for key
     _twilioFlutter = TwilioFlutter(
-      accountSid: 'keys row 1',
-      authToken: 'keys row 2',
+      accountSid: 'keys row 1-2',
+      authToken: 'keys row 4-5',
       twilioNumber:
-          'keys row 3 4', // Should switch to AU PhoneNumber -> Except A2P 10DLC
+          'keys row 7-8', // Should switch to AU PhoneNumber -> Except A2P 10DLC
     );
   }
 
