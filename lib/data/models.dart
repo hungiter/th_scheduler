@@ -1,4 +1,4 @@
 export 'user.dart';
 export 'room.dart';
-export 'plan.dart';
+export 'history.dart';
 export 'message.dart';

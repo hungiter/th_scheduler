@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initValueToTest();
+    // initValueToTest();
   }
 
   Future<void> initValueToTest() async {

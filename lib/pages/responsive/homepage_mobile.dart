@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:th_scheduler/pages/responsive/homepage_constant.dart";
 import "package:th_scheduler/data/models.dart";
 import "package:th_scheduler/utilities/firestore_handler.dart";
-import "homepage_components.dart";
+import "../../pages_components/room_boxes.dart";
 
 class MobileHome extends StatefulWidget {
   @override
@@ -28,6 +28,8 @@ class _MobileHomeState extends State<MobileHome> {
     }
   }
 
+  void displayDialog(Rooms rooms) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,25 +42,29 @@ class _MobileHomeState extends State<MobileHome> {
             children: [
               // 4 ô trên đầu
               // SliverGridDelegateWithFixedCrossAxisCount row x col
-              //
-              // AspectRatio(
-              //     aspectRatio: 1,
-              //     child: SizedBox(
-              //         width: double.maxFinite,
-              //         child: GridView.builder(
-              //             itemCount: 4,
-              //             gridDelegate:
-              //                 const SliverGridDelegateWithFixedCrossAxisCount(
-              //                     crossAxisCount: 2),
-              //             itemBuilder: (context, index) {
-              //               return RoomBox(roomDetails: Rooms.init(index + 1));
-              //             }))),
+
+              AspectRatio(
+                  aspectRatio: 1,
+                  child: SizedBox(
+                      width: double.maxFinite,
+                      child: GridView.builder(
+                          itemCount: 4,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2),
+                          itemBuilder: (context, index) {
+                            return RoomBox(
+                                roomDetails: Rooms.init(index + 1),
+                                onTap: displayDialog);
+                          }))),
 
               Expanded(
                   child: ListView.builder(
-                      itemCount: 100,
+                      itemCount: 10,
                       itemBuilder: (context, index) {
-                        return RoomBox(roomDetails: Rooms.init(index + 1));
+                        return RoomBox(
+                            roomDetails: Rooms.init(index + 5),
+                            onTap: displayDialog);
                       }))
             ],
           ),

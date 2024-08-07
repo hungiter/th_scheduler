@@ -23,6 +23,7 @@ class StartedButton extends StatelessWidget {
 
 class LoginFormButton extends StatelessWidget {
   final String text;
+  final bool enable;
   final Color btnColor;
   final Color txtColor;
   final VoidCallback onPressed;
@@ -30,6 +31,7 @@ class LoginFormButton extends StatelessWidget {
   const LoginFormButton(
       {super.key,
       required this.text,
+      required this.enable,
       required this.btnColor,
       required this.txtColor,
       required this.onPressed});
@@ -37,7 +39,7 @@ class LoginFormButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: onPressed,
+        onPressed: enable ? onPressed : () => {},
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(txtColor),
             backgroundColor: MaterialStateProperty.all<Color>(btnColor),

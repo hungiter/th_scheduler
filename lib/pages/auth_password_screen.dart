@@ -38,6 +38,7 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
   String phoneNumber = "";
 
   bool passInvisible = true;
+  bool onCheck = false;
   IconData visibleIcon = Icons.visibility;
   IconData invisibleIcon = Icons.visibility_off;
 
@@ -53,12 +54,20 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
   }
 
   void _loginCheck() async {
+    setState(() {
+      onCheck = true;
+    });
+
     phoneNumberParser();
     await _authService.signInWithPassword(phoneNumber, _passwordController.text,
         (String errorMessage) {
       _error = errorMessage;
     }, (Users user) {
       _navigateToHomePage(user.toJson());
+    });
+
+    setState(() {
+      onCheck = false;
     });
   }
 
@@ -70,105 +79,6 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Colors.lightBlueAccent,
-  //     body: SafeArea(
-  //       child: Center(
-  //         child: Padding(
-  //           padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 35),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               ClipRRect(
-  //                 borderRadius: BorderRadius.circular(100.0),
-  //                 // Set the desired border radius
-  //                 child: Image.asset(
-  //                   "assets/logo.png",
-  //                   width: 200,
-  //                   height: 200,
-  //                   fit: BoxFit.cover, // Adjust the fit as needed
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 40),
-  //               Wrap(
-  //                 children: [
-  //                   Container(
-  //                       width: (kIsWeb) ? 600 : double.infinity,
-  //                       padding: const EdgeInsets.symmetric(
-  //                           vertical: 25, horizontal: 35),
-  //                       decoration: BoxDecoration(
-  //                           color: Colors.white,
-  //                           border: Border.all(
-  //                             style: BorderStyle.solid,
-  //                             color: Colors.blue,
-  //                           ),
-  //                           borderRadius:
-  //                               const BorderRadius.all(Radius.circular(8))),
-  //                       child: Column(
-  //                         children: [
-  //                           PhoneInputWidget(
-  //                             height: 50,
-  //                             phoneController: _phoneController,
-  //                             selectedCountry: selectedCountry,
-  //                             onPhoneChanged: (value) {
-  //                               setState(() {
-  //                                 _error = "";
-  //                               });
-  //                             },
-  //                             onCountryChanged: (country) {
-  //                               setState(() {
-  //                                 _error = "";
-  //                                 selectedCountry = country;
-  //                               });
-  //                             },
-  //                           ),
-  //                           const SizedBox(height: 10),
-  //                           InputRowWithSuffix(
-  //                             textFieldLabel: "Password",
-  //                             controller: _passwordController,
-  //                             height: 50,
-  //                             obscureText: passInvisible,
-  //                             enableIcon: visibleIcon,
-  //                             disableIcon: invisibleIcon,
-  //                             inputType: TextInputType.visiblePassword,
-  //                             onTextChanged: (value) {
-  //                               setState(() {
-  //                                 _error = "";
-  //                               });
-  //                             },
-  //                             suffixClick: () {
-  //                               setState(() {
-  //                                 passInvisible = !passInvisible;
-  //                               });
-  //                             },
-  //                           ),
-  //                           SizedBox(
-  //                             height: 50,
-  //                             width: double.maxFinite,
-  //                             child: Container(
-  //                                 padding: const EdgeInsets.only(top: 5),
-  //                                 child: LoginFormButton(
-  //                                     text: "Xác nhận",
-  //                                     btnColor: Colors.green,
-  //                                     txtColor: Colors.white,
-  //                                     onPressed: () async {
-  //                                       _loginCheck();
-  //                                     })),
-  //                           ),
-  //                         ],
-  //                       )),
-  //                 ],
-  //               )
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +162,7 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
                             padding: const EdgeInsets.only(top: 5),
                             child: LoginFormButton(
                               text: "Xác nhận",
+                              enable: !onCheck,
                               btnColor: Colors.green,
                               txtColor: Colors.white,
                               onPressed: () async {
@@ -267,6 +178,7 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
                             padding: const EdgeInsets.only(top: 5),
                             child: LoginFormButton(
                               text: "Đăng ký / Đăng nhập với OTP",
+                              enable: true,
                               btnColor: Colors.blue,
                               txtColor: Colors.white,
                               onPressed: () {

@@ -17,10 +17,9 @@ class AuthService {
   AuthService() {
     // Looking on keys.txt for key
     _twilioFlutter = TwilioFlutter(
-      accountSid: 'keys row 1-2',
-      authToken: 'keys row 4-5',
-      twilioNumber:
-          'keys row 7-8', // Should switch to AU PhoneNumber -> Except A2P 10DLC
+      accountSid: 'AC254515b4ab9775c420871aa3c18cb3e-f',
+      authToken: 'b93d5f1d9b80dcddb0b5551430ebef8-7',
+      twilioNumber: '+18079070268',
     );
   }
 
@@ -71,6 +70,7 @@ class AuthService {
         toNumber: phoneNumber,
         messageBody: 'Your OTP code is $otp',
       );
+
       successCallback(otp);
     }
   }

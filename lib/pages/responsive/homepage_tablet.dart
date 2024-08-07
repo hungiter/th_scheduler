@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "package:th_scheduler/pages/responsive/homepage_constant.dart";
 
 import "package:th_scheduler/data/room.dart";
-import "homepage_components.dart";
+import "../../pages_components/room_boxes.dart";
 
 class TabletHome extends StatefulWidget {
   @override
@@ -11,6 +11,8 @@ class TabletHome extends StatefulWidget {
 }
 
 class _TabletHomeState extends State<TabletHome> {
+  void displayDialog(Rooms rooms) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,23 +20,30 @@ class _TabletHomeState extends State<TabletHome> {
         backgroundColor: tabletBackground,
         drawer: myDrawer,
         body: Container(
-          padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
+          padding: const EdgeInsets.only(left: 5, top: 5, right: 5),
           child: Column(
             children: [
+              AspectRatio(
+                  aspectRatio: 4,
+                  child: SizedBox(
+                      width: double.maxFinite,
+                      child: GridView.builder(
+                          itemCount: 4,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4),
+                          itemBuilder: (context, index) {
+                            return RoomBox(
+                                roomDetails: Rooms.init(index + 1),
+                                onTap: displayDialog);
+                          }))),
               Expanded(
                   child: ListView.builder(
-                      itemCount: 50,
+                      itemCount: 10,
                       itemBuilder: (context, index) {
-                        return Row(
-                          children: [
-                            Expanded(
-                                child: RoomBox(
-                                    roomDetails: Rooms.init(index * 2 + 1))),
-                            Expanded(
-                                child: RoomBox(
-                                    roomDetails: Rooms.init(index * 2 + 2)))
-                          ],
-                        );
+                        return RoomBox(
+                            roomDetails: Rooms.init(index + 5),
+                            onTap: displayDialog);
                       }))
             ],
           ),
