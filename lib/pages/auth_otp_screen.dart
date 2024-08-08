@@ -103,7 +103,7 @@ class _LoginWithOTPScreenState extends State<LoginWithOTPScreen> {
         Map<String, dynamic> userData =
             await PreferencesManager.getUserDataFromSP();
 
-        if (userData.isNotEmpty) _navigateToHomePage(userData);
+        if (userData.isNotEmpty) _navigateToHomePage();
       });
 
       setState(() {
@@ -116,11 +116,11 @@ class _LoginWithOTPScreenState extends State<LoginWithOTPScreen> {
     }
   }
 
-  void _navigateToHomePage(Map<String, dynamic> user) {
+  void _navigateToHomePage() {
     navigatorKey.currentState?.pushReplacement(
       MaterialPageRoute(
         builder: (context) =>
-            HomePage(currentUser: user), // Replace with your home screen
+            HomePage(), // Replace with your home screen
       ),
     );
   }

@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:th_scheduler/utilities/datetime_helper.dart';
 
 class Histories {
   final String id;
   final String roomId;
-  final String customerId;
+  final String userId;
   final DateTime fromDate;
   final DateTime? toDate; // Made nullable
   final int status; // 0-1-2
@@ -13,7 +12,7 @@ class Histories {
   Histories({
     required this.id,
     required this.roomId,
-    required this.customerId,
+    required this.userId,
     required this.fromDate,
     this.toDate, // Nullable
     required this.status,
@@ -21,11 +20,10 @@ class Histories {
 
   // Initialization method with default values
   static Histories init(int roomNumber) {
-    Random random = Random();
     return Histories(
         id: "0-0900000000",
         roomId: "0",
-        customerId: "0900000000",
+        userId: "0900000000",
         fromDate: DateTime.now(),
         toDate: null,
         // Default to null
@@ -35,44 +33,48 @@ class Histories {
   // Factory constructor to create a Histories instance from Firestore data
   factory Histories.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final DatetimeHelper datetimeHelper = DatetimeHelper();
     return Histories(
         id: doc.id,
         roomId: data['roomId'],
-        customerId: data['customerId'],
-        fromDate: (data['fromDate'] as Timestamp).toDate(),
+        userId: data['userId'],
+        fromDate: datetimeHelper.stringDt(data['fromDate'].toString()),
         toDate: data['toDate'] != null
-            ? (data['toDate'] as Timestamp).toDate()
+            ? datetimeHelper.stringDt(data['toDate'].toString())
             : null,
         status: int.parse(data['status'].toString()));
   }
 
   // Factory constructor to create a Histories instance from JSON data
   factory Histories.fromJson(Map<String, dynamic> json) {
+    final DatetimeHelper datetimeHelper = DatetimeHelper();
     return Histories(
         id: json['id'],
         roomId: json['roomId'],
-        customerId: json['customerId'],
-        fromDate: (json['fromDate'] as Timestamp).toDate(),
+        userId: json['userId'],
+        fromDate: datetimeHelper.stringDt(json['fromDate'].toString()),
         toDate: json['toDate'] != null
-            ? (json['toDate'] as Timestamp).toDate()
+            ? datetimeHelper.stringDt(json['toDate'].toString())
             : null,
         status: int.parse(json['status'].toString()));
   }
 
   // Method to convert a Histories instance to a JSON-compatible map
   Map<String, dynamic> toJson() {
+    final DatetimeHelper datetimeHelper = DatetimeHelper();
     return {
       'id': id,
       'roomId': roomId,
-      'customerId': customerId,
-      'fromDate': fromDate.toIso8601String(),
-      'toDate': toDate?.toIso8601String(), // Handle null values
+      'userId': userId,
+      'fromDate': datetimeHelper.dtString(fromDate),
+      'toDate': datetimeHelper.dtString(toDate!), // Handle null values
       'status': status
     };
   }
 
   String statusToString() {
     return switch (status) {
+      -1 => "Huỷ phòng",
       0 => "Đã đặt",
       1 => "Đang sử dụng",
       2 => "Đã trả phòng",

@@ -15,23 +15,36 @@
     <title>th_scheduler</title>
     <link rel="manifest" href="manifest.json">
     <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <!-- Firebase Authentication SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <!-- Firebase Analytics SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <!--    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>-->
+    <!--    &lt;!&ndash; Firebase Authentication SDK &ndash;&gt;-->
+    <!--    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>-->
+    <!--    &lt;!&ndash; Firebase Analytics SDK &ndash;&gt;-->
+    <!--    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>-->
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js"></script>
+
     <script>
         var firebaseConfig = {
-          apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",
-          authDomain: "th-scheduler-89eaa.firebaseapp.com",
           projectId: "th-scheduler-89eaa",
-          storageBucket: "th-scheduler-89eaa.appspot.com",
-          messagingSenderId: "463945083186",
           appId: "1:463945083186:web:34512eb8d7072853174f2b",
-          measurementId: "G-18PVB1NE03"
+          apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",
+          measurementId: "G-18PVB1NE03",
+          messagingSenderId: "463945083186",
+          storageBucket: "th-scheduler-89eaa.appspot.com",
+          authDomain: "th-scheduler-89eaa.firebaseapp.com",
+          databaseURL: "https://th-scheduler-89eaa-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+        const appCheck = firebase.appCheck();
+        appCheck.activate(
+          'abcdefghijklmnopqrstuvwxy-1234567890abcd',
+          true);
         firebase.analytics();
     </script>
 

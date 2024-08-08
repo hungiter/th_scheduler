@@ -63,7 +63,7 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
         (String errorMessage) {
       _error = errorMessage;
     }, (Users user) {
-      _navigateToHomePage(user.toJson());
+      _navigateToHomePage();
     });
 
     setState(() {
@@ -71,11 +71,11 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
     });
   }
 
-  void _navigateToHomePage(Map<String, dynamic> user) {
+  void _navigateToHomePage() {
     navigatorKey.currentState?.pushReplacement(
       MaterialPageRoute(
         builder: (context) =>
-            HomePage(currentUser: user), // Replace with your home screen
+            HomePage(), // Replace with your home screen
       ),
     );
   }

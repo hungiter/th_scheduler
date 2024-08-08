@@ -6,6 +6,7 @@ import 'package:th_scheduler/pages/auth_password_screen.dart';
 import 'package:th_scheduler/pages/responsive/homepage.dart';
 import 'package:th_scheduler/pages_components/custom_buttons.dart';
 import 'package:th_scheduler/services/preferences_manager.dart';
+import 'package:th_scheduler/utilities/firestore_handler.dart';
 import '../main.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -16,11 +17,17 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late bool onLoading = true;
   late bool visited = false;
+  FirestoreHandler firestoreHandler = FirestoreHandler();
 
   @override
   void initState() {
     super.initState();
+    _checkDatabaseExisted();
     _checkPrefs();
+  }
+
+  Future<void> _checkDatabaseExisted() async {
+    await firestoreHandler.initializeFirestoreDB();
   }
 
   Future<void> _checkPrefs() async {
@@ -33,18 +40,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } else {
       Map<String, dynamic> user = await PreferencesManager.getUserDataFromSP();
       if (user.isNotEmpty && user["id"] != "") {
-        _navigateToHomePage(user);
+        _navigateToHomePage();
       } else {
         _navigateToLoginPage();
       }
     }
   }
 
-  void _navigateToHomePage(Map<String, dynamic> user) {
+  void _navigateToHomePage() {
     navigatorKey.currentState?.pushReplacement(
       MaterialPageRoute(
-        builder: (context) =>
-            HomePage(currentUser: user), // Replace with your home screen
+        builder: (context) => HomePage(), // Replace with your home screen
       ),
     );
   }

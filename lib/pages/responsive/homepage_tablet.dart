@@ -34,7 +34,7 @@ class _TabletHomeState extends State<TabletHome> {
                                   crossAxisCount: 4),
                           itemBuilder: (context, index) {
                             return RoomBox(
-                                roomDetails: Rooms.init(index + 1),
+                                room: Rooms.init(index + 1),
                                 onTap: displayDialog);
                           }))),
               Expanded(
@@ -42,8 +42,7 @@ class _TabletHomeState extends State<TabletHome> {
                       itemCount: 10,
                       itemBuilder: (context, index) {
                         return RoomBox(
-                            roomDetails: Rooms.init(index + 5),
-                            onTap: displayDialog);
+                            room: Rooms.init(index + 5), onTap: displayDialog);
                       }))
             ],
           ),

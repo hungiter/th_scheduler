@@ -11,21 +11,10 @@ class MobileHome extends StatefulWidget {
 
 class _MobileHomeState extends State<MobileHome> {
   late List<Rooms> roomList = [];
-  final _fireStoreHandler = FirestoreHandler();
 
   @override
   void initState() {
     super.initState();
-    initVariables();
-  }
-
-  Future<void> initVariables() async {
-    List<Rooms> tmpList = await _fireStoreHandler.getTop10Rooms() ?? roomList;
-    if (tmpList.isNotEmpty) {
-      setState(() {
-        roomList = tmpList;
-      });
-    }
   }
 
   void displayDialog(Rooms rooms) {}
@@ -54,7 +43,7 @@ class _MobileHomeState extends State<MobileHome> {
                                   crossAxisCount: 2),
                           itemBuilder: (context, index) {
                             return RoomBox(
-                                roomDetails: Rooms.init(index + 1),
+                                room: Rooms.init(index + 1),
                                 onTap: displayDialog);
                           }))),
 
@@ -63,8 +52,7 @@ class _MobileHomeState extends State<MobileHome> {
                       itemCount: 10,
                       itemBuilder: (context, index) {
                         return RoomBox(
-                            roomDetails: Rooms.init(index + 5),
-                            onTap: displayDialog);
+                            room: Rooms.init(index + 5), onTap: displayDialog);
                       }))
             ],
           ),

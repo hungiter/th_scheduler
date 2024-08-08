@@ -160,6 +160,7 @@ class AuthService {
 
   void signOut() async {
     PreferencesManager.removePreferences("user_model");
+    PreferencesManager.removePreferences("user_id");
     await _auth.signOut();
   }
 }

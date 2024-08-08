@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,19 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",
+      authDomain: "th-scheduler-89eaa.firebaseapp.com",
+      databaseURL:
+          "https://th-scheduler-89eaa-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "th-scheduler-89eaa",
+      storageBucket: "th-scheduler-89eaa.appspot.com",
+      measurementId: "G-18PVB1NE03",
+      messagingSenderId: "463945083186",
+      appId: kIsWeb
+          ? "1:463945083186:web:34512eb8d7072853174f2b"
+          : "1:463945083186:android:2ea44cb4266e8b21174f2b",
+    ),
   );
   runApp(MyApp());
 }

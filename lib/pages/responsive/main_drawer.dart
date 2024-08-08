@@ -48,7 +48,6 @@ class _MyDrawerState extends State<MyDrawer> {
             selectedTileColor: Colors.blueAccent.withOpacity(0.3),
             onTap: () {
               _onSelected(0);
-              Navigator.pushNamed(context, '/booking');
             },
           ),
           ListTile(
@@ -58,7 +57,6 @@ class _MyDrawerState extends State<MyDrawer> {
             selectedTileColor: Colors.blueAccent.withOpacity(0.3),
             onTap: () {
               _onSelected(1);
-              Navigator.pushNamed(context, '/history');
             },
           ),
           ListTile(
@@ -68,7 +66,6 @@ class _MyDrawerState extends State<MyDrawer> {
             selectedTileColor: Colors.blueAccent.withOpacity(0.3),
             onTap: () {
               _onSelected(2);
-              Navigator.pushNamed(context, '/support');
             },
           ),
           ListTile(
@@ -78,7 +75,6 @@ class _MyDrawerState extends State<MyDrawer> {
             selectedTileColor: Colors.blueAccent.withOpacity(0.3),
             onTap: () {
               _onSelected(3);
-              Navigator.pushNamed(context, '/userInfo');
             },
           ),
           ListTile(

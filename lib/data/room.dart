@@ -1,17 +1,15 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 class Rooms {
   final String id;
   final int roomType;
-  final double pricePerDay;
   final bool opened;
 
   Rooms({
     required this.id,
     required this.roomType,
-    required this.pricePerDay,
     required this.opened,
   });
 
@@ -19,29 +17,34 @@ class Rooms {
   static Rooms init(int roomNumber) {
     Random random = Random();
     return Rooms(
-        id: "$roomNumber",
-        roomType: random.nextInt(2),
-        pricePerDay: 0.0,
-        opened: true);
+      id: "$roomNumber",
+      roomType: random.nextInt(3), // Adjusted to allow roomType 0, 1, or 2
+      opened: true,
+    );
   }
 
   // Factory constructor to create a Room instance from Firestore data
-  factory Rooms.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory Rooms.fromFirestore(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>?;
+
+    if (data == null) {
+      throw ArgumentError('Snapshot data is null');
+    }
+
     return Rooms(
-        id: doc.id,
-        roomType: data['roomType'] ?? 0, // Updated field name
-        pricePerDay: data['pricePerDay']?.toDouble() ?? 0.0,
-        opened: data['opened'] ?? true); // Handle null value
+      id: snapshot.id,
+      roomType: int.parse(data['roomType'].toString()),
+      opened: bool.parse(data['opened'].toString()),
+    );
   }
 
   // Factory constructor to create a Room instance from JSON data
   factory Rooms.fromJson(Map<String, dynamic> json) {
     return Rooms(
-        id: json['id'],
-        roomType: json['roomType'] ?? 0, // Updated field name
-        pricePerDay: json['pricePerDay']?.toDouble() ?? 0.0,
-        opened: json['opened'] ?? true); // Handle null value
+      id: json['id'].toString(),
+      roomType: int.parse(json['roomType'].toString()),
+      opened: bool.parse(json['opened'].toString()),
+    );
   }
 
   // Method to convert a Room instance to a JSON-compatible map
@@ -49,8 +52,7 @@ class Rooms {
     return {
       'id': id,
       'roomType': roomType,
-      'pricePerDay': pricePerDay,
-      'opened': opened
+      'opened': opened,
     };
   }
 
@@ -59,7 +61,20 @@ class Rooms {
       0 => "Giường đơn",
       1 => "Giường đơn x2",
       2 => "Giường đôi",
-      int() => throw UnimplementedError(),
+      _ => throw UnimplementedError(),
     };
+  }
+
+  double priceByRoomType() {
+    return switch (roomType) {
+      0 => 150000.0,
+      1 => 200000.0,
+      2 => 250000.0,
+      _ => throw UnimplementedError(),
+    };
+  }
+
+  String statusToString() {
+    return switch (opened) { true => "Mở", false => "Đóng" };
   }
 }

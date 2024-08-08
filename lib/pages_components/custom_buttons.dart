@@ -77,3 +77,72 @@ class MiniLoginFormButton extends StatelessWidget {
         child: Text(text, style: const TextStyle(fontSize: 12)));
   }
 }
+
+class RoomActionButton extends StatefulWidget {
+  final int actionId;
+  final VoidCallback onPressed;
+
+  const RoomActionButton({
+    Key? key,
+    required this.actionId,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  _RoomActionButtonState createState() => _RoomActionButtonState();
+}
+
+class _RoomActionButtonState extends State<RoomActionButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    Color buttonColor = switch (widget.actionId) {
+      -1 => Colors.green, // Đặt lịch
+      0 => Colors.red, // Huỷ
+      1 => Colors.yellow, // Dời lịch hẹn
+      2 => Colors.red, // Xoá lịch sử
+      int() => throw UnimplementedError(),
+    };
+
+    Color textColor = switch (widget.actionId) {
+      -1 => Colors.black, // Đặt lịch
+      0 => Colors.white, // Huỷ
+      1 => Colors.grey, // Dời lịch hẹn
+      2 => Colors.white, // Xoá lịch sử
+      int() => throw UnimplementedError(),
+    };
+
+    String displayText = switch (widget.actionId) {
+      -1 => "Đặt phòng", // Đặt lịch
+      0 => "Huỷ phòng", // Huỷ
+      1 => "Dời lịch", // Dời lịch hẹn
+      2 => "Xoá", // Xoá lịch sử
+      int() => throw UnimplementedError(),
+    };
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: ElevatedButton(
+        onPressed: widget.onPressed,
+        style: ButtonStyle(
+          foregroundColor: MaterialStateProperty.all<Color>(textColor),
+          backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+        ),
+        child: Text(
+          displayText,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: _isHovered ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
