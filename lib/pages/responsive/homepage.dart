@@ -1,4 +1,5 @@
-import 'package:intl/intl.dart';
+import 'dart:async';
+
 import 'package:th_scheduler/main.dart';
 import 'package:th_scheduler/pages/pages_handle.dart';
 import 'package:th_scheduler/pages/responsive/responsive_layout.dart';
@@ -24,18 +25,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
-    _firestoreHandler.getAvailableRooms(
-        errorCallBack: (error) {
-          debugPrint(error);
-        },
-        successCallback: (rooms) {});
 
-    setState(() {
-      onLoading = false;
-    });
+    _checkAllDataNeed();
   }
 
-  // Not neccessary
   Future<void> _checkLoginStatus() async {
     Map<String, dynamic> prefUser =
         await PreferencesManager.getUserDataFromSP();
@@ -44,6 +37,18 @@ class _HomePageState extends State<HomePage> {
     if (prefUser.isEmpty) {
       _navigationToLogin();
     }
+  }
+
+  Future<void> _checkAllDataNeed() async {
+    await _firestoreHandler.getAvailableRooms(errorCallBack: (error) {
+      debugPrint(error);
+    }, successCallback: (rooms) async {
+      String staffId = await _firestoreHandler.getStaffId();
+      await PreferencesManager.saveStaffId(staffId);
+      setState(() {
+        onLoading = false;
+      });
+    });
   }
 
   void _navigationToLogin() {
@@ -56,9 +61,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveHomePage(
-        mobileHomePage: MobileHome(),
-        tabletHomePage: TabletHome(),
-        desktopHomePage: DesktopHome());
+    return (onLoading)
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : ResponsiveHomePage(
+            mobileHomePage: MobileHome(),
+            tabletHomePage: TabletHome(),
+            desktopHomePage: DesktopHome());
   }
 }

@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:th_scheduler/data/room.dart';
+import 'package:th_scheduler/main.dart';
 import 'package:th_scheduler/pages/responsive/homepage_constant.dart';
 import 'package:th_scheduler/pages_components/customDatePicker.dart';
 import 'package:th_scheduler/pages_components/custom_buttons.dart';
 import 'package:th_scheduler/services/notify_services.dart';
+import 'package:th_scheduler/utilities/bug_handler.dart';
 import 'package:th_scheduler/utilities/datetime_helper.dart';
 import 'package:th_scheduler/utilities/firestore_handler.dart';
 import 'custom_rows.dart';
@@ -29,6 +31,16 @@ class _RoomBoxState extends State<RoomBox> {
   void initState() {
     super.initState();
     room = widget.room;
+  }
+
+  @override
+  void didUpdateWidget(RoomBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.room != widget.room) {
+      setState(() {
+        room = widget.room;
+      });
+    }
   }
 
   void _onContainerTap() {
@@ -121,6 +133,8 @@ class RoomDetailBox extends StatefulWidget {
 
 class _RoomDetailBoxState extends State<RoomDetailBox> {
   late Rooms? room;
+  bool onProcess = false;
+  String error = "";
 
   final List<DateTime> _availableDates = [];
   DateTime? _selectedDate;
@@ -163,6 +177,39 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
     });
   }
 
+  void createSuccess() {
+    notifyServices.showMessage("Đặt phòng thành công");
+    widget.pageRefresh();
+  }
+
+  Future<void> createOrder() async {
+    setState(() {
+      onProcess = true;
+    });
+
+    String e = "";
+    if (_selectedDate != null) {
+      DateTime currDate = _selectedDate!;
+      String roomId = room!.id;
+
+      await _firestoreHandler.roomOrderAndCreateHistory(roomId, currDate,
+          (error) {
+        e = BugHandler.bugString(error);
+      }, () => createSuccess());
+    }
+
+    if (e.isNotEmpty) {
+      setState(() {
+        error = e;
+      });
+      return;
+    }
+
+    setState(() {
+      onProcess = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -198,66 +245,70 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Expanded(
-                  //     child:
+
+                  const SizedBox(height: 20),
                   (room == null)
                       ? const SizedBox.shrink()
                       : Container(
                           decoration: dialogContainersDecoration[2],
                           child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                // mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  buildTitleAndValueTextRow("Phòng:", room!.id),
-                                  buildTitleAndValueTextRow(
-                                      "Kiểu:", room!.roomTypeToString()),
-                                  buildTitleAndValueTextRow("Giá / Ngày:",
-                                      "${room!.priceByRoomType()} VNĐ"),
-                                ],
-                              )),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              // mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                buildTitleAndValueTextRow("Phòng:", room!.id),
+                                buildTitleAndValueTextRow(
+                                    "Kiểu:", room!.roomTypeToString()),
+                                buildTitleAndValueTextRow("Giá / Ngày:",
+                                    "${room!.priceByRoomType()} VNĐ"),
+                              ],
+                            ),
+                          ),
                         ),
-                  // ),
-                  const SizedBox(height: 12),
+
                   // Align content at the bottom center
+                  const SizedBox(height: 20),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            // Adjust to fit the width of the container
-                            child: MyDatePicker(
-                              setAsDefault: false,
-                              dates: _availableDates,
-                              onDateSelected: _datetimeStateChange,
+                    child: Container(
+                      decoration: dialogContainersDecoration[3],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              // Adjust to fit the width of the container
+                              child: MyDatePicker(
+                                setAsDefault: false,
+                                enable: true,
+                                dates: _availableDates,
+                                onDateSelected: _datetimeStateChange,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: RoomActionButton(
-                              actionId: -1,
-                              onPressed: () async {
-                                if (_selectedDate != null) {
-                                  DateTime currDate = _selectedDate!;
-                                  String roomId = room!.id;
-                                  notifyServices
-                                      .showMessage("$roomId-$currDate");
-                                  await _firestoreHandler
-                                      .createHistory(roomId, currDate, (error) {
-                                    notifyServices.showErrorToast(error);
-                                  }, widget.pageRefresh);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            (error.isNotEmpty)
+                                ? Text(error, textAlign: TextAlign.center)
+                                : (onProcess)
+                                    ? const Text("Đang xử lí",
+                                        textAlign: TextAlign.center)
+                                    : Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: RoomActionButton(
+                                          enable: !onProcess,
+                                          actionId: -1,
+                                          onPressed: () async {
+                                            setState(() {
+                                              error = "";
+                                            });
+                                            await createOrder();
+                                          },
+                                        ),
+                                      ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

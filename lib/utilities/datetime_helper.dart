@@ -30,4 +30,8 @@ class DatetimeHelper {
   DateTime stringDt(String dateString) {
     return dateFormat.parse(dateString);
   }
+
+  int currentTimestamp() {
+    return DateTime.now().millisecondsSinceEpoch;
+  }
 }

@@ -1,21 +1,31 @@
-class Message {
+class ChatMessage {
   final String senderId;
-  final String receiverId;
-  final String text;
+  final String message;
   final int timestamp;
+  final Map<String, bool> clearedBy; // New field
 
-  Message(
-      {required this.senderId,
-      required this.receiverId,
-      required this.text,
-      required this.timestamp});
+  ChatMessage({
+    required this.senderId,
+    required this.message,
+    required this.timestamp,
+    this.clearedBy = const {},
+  });
 
-  factory Message.fromRealtimeDatabase(Map<dynamic, dynamic> data) {
-    return Message(
-      senderId: data['senderId'] ?? '',
-      receiverId: data['receiverId'] ?? '',
-      text: data['text'] ?? '',
-      timestamp: data['timestamp'] ?? 0,
+  Map<String, dynamic> toJson() {
+    return {
+      'senderId': senderId,
+      'message': message,
+      'timestamp': timestamp,
+      'clearedBy': clearedBy,
+    };
+  }
+
+  static ChatMessage fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      senderId: json['senderId'],
+      message: json['message'],
+      timestamp: json['timestamp'],
+      clearedBy: Map<String, bool>.from(json['clearedBy'] ?? {}),
     );
   }
 }

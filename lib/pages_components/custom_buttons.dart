@@ -79,11 +79,13 @@ class MiniLoginFormButton extends StatelessWidget {
 }
 
 class RoomActionButton extends StatefulWidget {
+  final bool enable;
   final int actionId;
   final VoidCallback onPressed;
 
   const RoomActionButton({
     Key? key,
+    required this.enable,
     required this.actionId,
     required this.onPressed,
   }) : super(key: key);
@@ -125,13 +127,17 @@ class _RoomActionButtonState extends State<RoomActionButton> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: ElevatedButton(
-        onPressed: widget.onPressed,
+        onPressed: widget.enable ? widget.onPressed : null,
         style: ButtonStyle(
           foregroundColor: MaterialStateProperty.all<Color>(textColor),
           backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: textColor, // Set the outline color here
+                width: 1.0, // Set the width of the outline
+              ),
             ),
           ),
         ),

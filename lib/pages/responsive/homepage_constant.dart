@@ -42,28 +42,45 @@ var myDrawer = const Drawer(
   ),
 );
 
-var emptyExpand = Expanded(
-    child: Padding(
-        padding: const EdgeInsets.only(left: 5),
-        child: InkWell(
-            onTap: null,
-            child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 187, 215, 230),
-                  border: Border.all(color: Colors.white, width: 2.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10.0,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
+var circularEmpty = Expanded(
+    child: InkWell(
+        onTap: null,
+        child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 187, 215, 230),
+              border: Border.all(color: Colors.white, width: 2.0),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0, 5),
                 ),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                )))));
+              ],
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ))));
+
+var textEmpty = Expanded(
+    child: InkWell(
+        onTap: null,
+        child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 187, 215, 230),
+              border: Border.all(color: Colors.white, width: 2.0),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text("Chưa có dữ liệu để hiển thị"),
+            ))));
 
 var dialogContainersDecoration = [
   // Main Container
@@ -75,7 +92,7 @@ var dialogContainersDecoration = [
       BoxShadow(
         color: Colors.black26,
         blurRadius: 10.0,
-        offset: Offset(0, 8),
+        // offset: Offset(0, 8),
       ),
     ],
   ),
@@ -94,6 +111,18 @@ var dialogContainersDecoration = [
   // Value Container
   const BoxDecoration(
     color: Color.fromARGB(255, 50, 200, 200),
+    borderRadius: BorderRadius.all(Radius.circular(12)),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black26,
+        blurRadius: 5.0,
+        offset: Offset(0, 4),
+      ),
+    ],
+  ),
+  // DatePicker Container
+  const BoxDecoration(
+    color: Color.fromARGB(170, 255, 255, 70),
     borderRadius: BorderRadius.all(Radius.circular(12)),
     boxShadow: [
       BoxShadow(

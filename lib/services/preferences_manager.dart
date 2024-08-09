@@ -17,7 +17,7 @@ class PreferencesManager {
   static Future<void> setUserDataToSP(Users user) async {
     SharedPreferences s = await SharedPreferences.getInstance();
     await s.setString("user_model", jsonEncode(user.toJson()));
-    await s.setString("user_id", user.id);
+    await s.setString("user_id", user.id); // Using for faster update history
   }
 
   static Future<Map<String, dynamic>> getUserDataFromSP() async {
@@ -40,6 +40,11 @@ class PreferencesManager {
     SharedPreferences s = await SharedPreferences.getInstance();
     String data = s.getString("user_id") ?? '';
     return data;
+  }
+
+  static Future<void> saveStaffId(String staffId) async {
+    SharedPreferences s = await SharedPreferences.getInstance();
+    await s.setString("staff_id", staffId); // Using for handle chat method
   }
 
   static Future<void> removePreferences(String prefName) async {

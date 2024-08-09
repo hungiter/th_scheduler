@@ -8,17 +8,21 @@ import 'package:th_scheduler/services/preferences_manager.dart';
 import '../auth_otp_screen.dart';
 
 class MyDrawer extends StatefulWidget {
+  final int selected;
   final Function(int) onSelect;
 
   const MyDrawer(
-      {super.key, required this.onSelect}); // Accepts a callback function
+      {super.key,
+      required this.selected,
+      required this.onSelect}); // Accepts a callback function
 
   @override
   _MyDrawerState createState() => _MyDrawerState();
 }
 
 class _MyDrawerState extends State<MyDrawer> {
-  int _selectedIndex = 0; // State to track the selected item
+  int _selectedIndex = 0;
+  late int selected;
 
   @override
   void initState() {
@@ -27,9 +31,21 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void _onSelected(int tagId) {
     widget.onSelect(tagId);
+    selected = widget.selected;
     setState(() {
       _selectedIndex = tagId;
     });
+  }
+
+  @override
+  void didUpdateWidget(MyDrawer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      setState(() {
+        selected = widget.selected;
+        _selectedIndex = selected;
+      });
+    }
   }
 
   @override

@@ -5,12 +5,14 @@ import 'package:th_scheduler/utilities/datetime_helper.dart';
 
 class MyDatePicker extends StatefulWidget {
   final bool setAsDefault;
+  final bool enable;
   final List<DateTime> dates;
   final ValueChanged<String>? onDateSelected;
 
   MyDatePicker(
       {super.key,
       required this.setAsDefault,
+      required this.enable,
       required this.dates,
       required this.onDateSelected});
 
@@ -130,6 +132,8 @@ class _MyDatePickerState extends State<MyDatePicker> {
               controller: _controller,
               decoration: const InputDecoration(
                 labelText: 'Ngày bắt đầu',
+                fillColor: Color.fromARGB(222, 255, 255, 255),
+                filled: true,
                 border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.calendar_today),
               ),

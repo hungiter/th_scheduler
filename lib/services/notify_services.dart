@@ -14,6 +14,18 @@ class NotifyServices {
     );
   }
 
+  void showAlert(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.TOP,
+      timeInSecForIosWeb: 4,
+      backgroundColor: Color.fromARGB(255, 255, 255, 0),
+      textColor: Colors.black,
+      fontSize: 16.0,
+    );
+  }
+
   void showMessage(String message) {
     Fluttertoast.showToast(
       msg: message,

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Users {
   final String id;
   final String otp;
-  final String email;
+  final String role;
   final String password;
   final String displayName;
   final bool isVerified;
@@ -14,7 +14,7 @@ class Users {
   Users({
     required this.id,
     required this.otp,
-    required this.email,
+    required this.role,
     required this.password,
     required this.displayName,
     required this.isVerified,
@@ -27,7 +27,7 @@ class Users {
     return Users(
       id: '',
       otp: '',
-      email: '',
+      role: '',
       password: '',
       displayName: '',
       isVerified: false,
@@ -43,7 +43,7 @@ class Users {
     return Users(
       id: doc.id,
       otp: data['otp'] ?? '',
-      email: data['email'] ?? '',
+      role: data['role'] ?? '',
       password: data['password'] ?? '',
       displayName: data['displayName'] ?? '',
       isVerified: data['isVerified'] ?? false,
@@ -58,14 +58,14 @@ class Users {
     return Users(
       id: json['id'] ?? '',
       otp: json['otp'] ?? '',
-      email: json['email'] ?? '',
+      role: json['role'] ?? '',
       password: json['password'] ?? '',
       displayName: json['displayName'] ?? '',
       isVerified: json['isVerified'] ?? false,
       // Add this line
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      lastLogin: DateTime.parse(json['lastLogin']),
+      createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (json['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      lastLogin: (json['lastLogin'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -74,7 +74,7 @@ class Users {
     return {
       'id': id,
       'otp': otp,
-      'email': email,
+      'role': role,
       'password': password,
       'displayName': displayName,
       'isVerified': isVerified, // Add this line

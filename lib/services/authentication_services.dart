@@ -99,13 +99,14 @@ class AuthService {
               .update({'otp': FieldValue.delete()});
         } else {
           // On Create
+          int docLength =
+              (await _firestore.collection('users').get()).docs.length;
           await _firestore.collection('users').doc(phoneNumber).update({
             'id': phoneNumber,
             'otp': FieldValue.delete(),
-            'email': '',
+            'role': 'user',
             'password': '111111',
-            'displayName':
-                'User+${(await _firestore.collection('users').get()).docs.length}',
+            'displayName': 'User+$docLength',
             'isVerified': true,
             'createdAt': FieldValue.serverTimestamp(),
             'updatedAt': FieldValue.serverTimestamp()

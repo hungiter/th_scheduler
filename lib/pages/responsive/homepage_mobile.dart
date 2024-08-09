@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:th_scheduler/pages/responsive/homepage_constant.dart";
 import "package:th_scheduler/data/models.dart";
 import "package:th_scheduler/utilities/firestore_handler.dart";
-import "../../pages_components/room_boxes.dart";
+import "../../pages_components/boxes_room.dart";
 
 class MobileHome extends StatefulWidget {
   @override
