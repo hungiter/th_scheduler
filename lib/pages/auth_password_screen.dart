@@ -1,4 +1,5 @@
 import 'package:th_scheduler/main.dart';
+import 'package:th_scheduler/pages/responsive/homepage_staff.dart';
 import 'auth_otp_screen.dart';
 import 'responsive/homepage.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +64,8 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
         (String errorMessage) {
       _error = errorMessage;
     }, (Users user) {
-      _navigateToHomePage();
+      Map<String, dynamic> userData = user.toJson();
+      _navigateToHomePage(userData);
     });
 
     setState(() {
@@ -71,13 +73,23 @@ class _LoginWithPasswordScreenState extends State<LoginWithPasswordScreen> {
     });
   }
 
-  void _navigateToHomePage() {
-    navigatorKey.currentState?.pushReplacement(
-      MaterialPageRoute(
-        builder: (context) =>
-            HomePage(), // Replace with your home screen
-      ),
-    );
+  void _navigateToHomePage(Map<String, dynamic> userData) {
+    if (userData["role"] == "user") {
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => HomePage(), // Replace with your home screen
+        ),
+      );
+    }
+
+    if (userData["role"] == "staff") {
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) =>
+              StaffHomePage(), // Replace with your home screen
+        ),
+      );
+    }
   }
 
   @override

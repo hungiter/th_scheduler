@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 
 class Rooms {
   final String id;
+  final int roomNo;
   final int roomType;
   final bool opened;
 
   Rooms({
     required this.id,
+    required this.roomNo,
     required this.roomType,
     required this.opened,
   });
@@ -18,6 +20,7 @@ class Rooms {
     Random random = Random();
     return Rooms(
       id: "$roomNumber",
+      roomNo: 0, // Adjusted to allow roomType 0, 1, or 2
       roomType: random.nextInt(3), // Adjusted to allow roomType 0, 1, or 2
       opened: true,
     );
@@ -33,6 +36,7 @@ class Rooms {
 
     return Rooms(
       id: snapshot.id,
+      roomNo: int.parse(data['roomNo'].toString()),
       roomType: int.parse(data['roomType'].toString()),
       opened: bool.parse(data['opened'].toString()),
     );
@@ -42,6 +46,7 @@ class Rooms {
   factory Rooms.fromJson(Map<String, dynamic> json) {
     return Rooms(
       id: json['id'].toString(),
+      roomNo: int.parse(json['roomNo'].toString()),
       roomType: int.parse(json['roomType'].toString()),
       opened: bool.parse(json['opened'].toString()),
     );
@@ -51,6 +56,7 @@ class Rooms {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'roomNo': roomNo,
       'roomType': roomType,
       'opened': opened,
     };

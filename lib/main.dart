@@ -11,21 +11,35 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",
-      authDomain: "th-scheduler-89eaa.firebaseapp.com",
-      databaseURL:
-          "https://th-scheduler-89eaa-default-rtdb.asia-southeast1.firebasedatabase.app/",
-      projectId: "th-scheduler-89eaa",
-      storageBucket: "th-scheduler-89eaa.appspot.com",
-      measurementId: "G-18PVB1NE03",
-      messagingSenderId: "463945083186",
-      appId: kIsWeb
-          ? "1:463945083186:web:34512eb8d7072853174f2b"
-          : "1:463945083186:android:2ea44cb4266e8b21174f2b",
-    ),
-  );
+
+  // Check if the Firebase app named "th-scheduler" already exists
+  try {
+    if (Firebase.apps.any((app) => app.name == 'th-scheduler')) {
+      // Use the existing instance
+      FirebaseApp app = Firebase.app('th-scheduler');
+    } else {
+      kIsWeb
+          ? await Firebase.initializeApp(
+              // name: 'th-scheduler',
+              options: const FirebaseOptions(
+              apiKey: "AIzaSyD4YEhscoMK4xgtcfJo2thFGnpfvNploJ4",
+              authDomain: "th-scheduler-89eaa.firebaseapp.com",
+              databaseURL:
+                  "https://th-scheduler-89eaa-default-rtdb.asia-southeast1.firebasedatabase.app/",
+              projectId: "th-scheduler-89eaa",
+              storageBucket: "th-scheduler-89eaa.appspot.com",
+              measurementId: "G-18PVB1NE03",
+              messagingSenderId: "463945083186",
+              appId: "1:463945083186:web:34512eb8d7072853174f2b",
+            ))
+          : await Firebase.initializeApp(
+              name: 'th-scheduler',
+              options: DefaultFirebaseOptions.currentPlatform);
+    }
+  } catch (e) {
+    print('Error initializing Firebase app: $e');
+  }
+
   runApp(MyApp());
 }
 
@@ -40,7 +54,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // initValueToTest();
   }
 
   Future<void> initValueToTest() async {

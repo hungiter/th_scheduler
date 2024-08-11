@@ -1,50 +1,86 @@
 import 'package:flutter/material.dart';
 
-class CountryCodeDropdown extends StatelessWidget {
-  final String selectedCountryCode;
-  final ValueChanged<String> onCountryCodeChanged;
+class RoomTypeDropdown extends StatefulWidget {
+  final int currentFilter;
+  final Function(int) onRoomTypeSelected;
 
-  const CountryCodeDropdown(
-      {super.key,
-      required this.selectedCountryCode,
-      required this.onCountryCodeChanged});
+  const RoomTypeDropdown(
+      {Key? key, required this.currentFilter, required this.onRoomTypeSelected})
+      : super(key: key);
+
+  @override
+  _RoomTypeDropdownState createState() => _RoomTypeDropdownState();
+}
+
+class _RoomTypeDropdownState extends State<RoomTypeDropdown> {
+  late int currentFilter;
+  late String selectedType;
+
+  final List<String> roomTypes = [
+    'Tất cả',
+    'Phòng có 1 giường đơn',
+    'Phòng có 2 giường đơn',
+    'Phòng có giường đôi'
+  ];
+  final List<int> roomValues = [-1, 0, 1, 2];
+
+  @override
+  void initState() {
+    super.initState();
+    currentFilter = widget.currentFilter;
+    selectedType = roomTypes[roomValues.indexOf(currentFilter)];
+  }
+
+  @override
+  void didUpdateWidget(RoomTypeDropdown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentFilter != widget.currentFilter) {
+      setState(() {
+        currentFilter = widget.currentFilter;
+        selectedType = roomTypes[roomValues.indexOf(currentFilter)];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DropdownMenu<String>(
-      initialSelection: selectedCountryCode,
-      onSelected: (String? newValue) {
-        if (newValue != null) {
-          onCountryCodeChanged(newValue);
-        }
-      },
-      dropdownMenuEntries: const [
-        DropdownMenuEntry(value: '+1', label: 'USA'),
-        DropdownMenuEntry(value: '+44', label: 'UK'),
-        DropdownMenuEntry(value: '+61', label: 'AU'),
-        DropdownMenuEntry(value: '+91', label: 'IN'),
-        DropdownMenuEntry(value: '+81', label: 'JP'),
-        DropdownMenuEntry(value: '+49', label: 'DE'),
-        DropdownMenuEntry(value: '+33', label: 'FR'),
-        DropdownMenuEntry(value: '+39', label: 'IT'),
-        DropdownMenuEntry(value: '+34', label: 'ES'),
-        DropdownMenuEntry(value: '+55', label: 'BR'),
-        DropdownMenuEntry(value: '+7', label: 'RU'),
-        DropdownMenuEntry(value: '+86', label: 'CN'),
-        DropdownMenuEntry(value: '+82', label: 'KR'),
-        DropdownMenuEntry(value: '+64', label: 'NZ'),
-        DropdownMenuEntry(value: '+27', label: 'ZA'),
-        DropdownMenuEntry(value: '+52', label: 'MX'),
-        DropdownMenuEntry(value: '+31', label: 'NL'),
-        DropdownMenuEntry(value: '+46', label: 'SE'),
-        DropdownMenuEntry(value: '+41', label: 'CH'),
-        DropdownMenuEntry(value: '+32', label: 'BE'),
-        DropdownMenuEntry(value: '+47', label: 'NO'),
-        DropdownMenuEntry(value: '+65', label: 'SG'),
-        DropdownMenuEntry(value: '+90', label: 'TR'),
-        DropdownMenuEntry(value: '+84', label: 'VN'),
-        // Add other country codes as needed
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6.0,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: selectedType,
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+          iconSize: 24,
+          elevation: 16,
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedType = newValue!;
+            });
+            widget.onRoomTypeSelected(
+                roomValues[roomTypes.indexOf(selectedType)]);
+          },
+          items: roomTypes.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
     );
   }
 }

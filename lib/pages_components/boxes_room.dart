@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:th_scheduler/data/room.dart';
-import 'package:th_scheduler/main.dart';
 import 'package:th_scheduler/pages/responsive/homepage_constant.dart';
 import 'package:th_scheduler/pages_components/customDatePicker.dart';
 import 'package:th_scheduler/pages_components/custom_buttons.dart';
@@ -60,12 +59,10 @@ class _RoomBoxState extends State<RoomBox> {
             onEnter: (_) => _onEnter(true),
             onExit: (_) => _onEnter(false),
             child: GestureDetector(
-              onTap: _onContainerTap,
               child: buildRoomBox(),
             ),
           )
         : GestureDetector(
-            onTap: _onContainerTap,
             onTapDown: (_) => _onEnter(true),
             onTapUp: (_) => _onEnter(false),
             onTapCancel: () => _onEnter(false),
@@ -74,22 +71,28 @@ class _RoomBoxState extends State<RoomBox> {
   }
 
   Widget buildRoomBox() {
+    Color color =
+        switch (room.opened) { true => Colors.green, false => Colors.grey };
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
-        onTap: _onContainerTap,
-        borderRadius: BorderRadius.circular(15.0),
+        onTap: (room.opened) ? _onContainerTap : null,
+        borderRadius: BorderRadius.circular(12.0),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
           decoration: BoxDecoration(
-            color: _isHovered ? Colors.blue[700] : Colors.blueAccent,
-            borderRadius: BorderRadius.circular(15.0),
+            color: (!room.opened)
+                ? color
+                : _isHovered
+                    ? color.withAlpha(222)
+                    : color,
+            borderRadius: BorderRadius.circular(12.0),
             border: Border.all(color: Colors.white, width: 2.0),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
-                blurRadius: 10.0,
-                offset: Offset(0, 5),
+                blurRadius: 12.0,
+                offset: Offset(0, 8),
               ),
             ],
           ),
@@ -122,10 +125,15 @@ class _RoomBoxState extends State<RoomBox> {
 }
 
 class RoomDetailBox extends StatefulWidget {
+  final bool isDialog;
   final Rooms? room;
   final Function() pageRefresh; // Accepts a callback function
 
-  RoomDetailBox({super.key, required this.room, required this.pageRefresh});
+  RoomDetailBox(
+      {super.key,
+      required this.isDialog,
+      required this.room,
+      required this.pageRefresh});
 
   @override
   _RoomDetailBoxState createState() => _RoomDetailBoxState();
@@ -210,15 +218,124 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget roomDialog(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      insetPadding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Exit Button
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ),
+              const SizedBox(height: 8.0),
+
+              // Room title and image container
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: containerDecorations[1],
+                child: Center(
+                  child: Text(
+                    "Phòng ${room!.id}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+
+              if (room != null)
+                Container(
+                  decoration: containerDecorations[2],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildTitleAndValueTextRow("Phòng:", room!.id),
+                        buildTitleAndValueTextRow(
+                            "Kiểu:", room!.roomTypeToString()),
+                        buildTitleAndValueTextRow(
+                            "Giá / Ngày:", "${room!.priceByRoomType()} VNĐ"),
+                      ],
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 20),
+
+              // Date picker and action button
+              Container(
+                decoration: containerDecorations[3],
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      MyDatePicker(
+                        setAsDefault: false,
+                        enable: true,
+                        dates: _availableDates,
+                        onDateSelected: _datetimeStateChange,
+                      ),
+                      const SizedBox(height: 8),
+                      if (error.isNotEmpty)
+                        Text(error, textAlign: TextAlign.center),
+                      if (!onProcess)
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: UIActionButton(
+                            enable: !onProcess,
+                            actionId: -1,
+                            onPressed: () async {
+                              setState(() {
+                                error = "";
+                                onProcess = true;
+                              });
+
+                              await createOrder();
+
+                              // Close the dialog after order creation is complete
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        )
+                      else
+                        const Text("Đang xử lí", textAlign: TextAlign.center),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget roomBox(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: InkWell(
         onTap: null, // You can add functionality here if needed
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: dialogContainersDecoration[0],
+          decoration: containerDecorations[0],
           child: Stack(
             children: [
               Column(
@@ -231,7 +348,7 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
                       height: 100.0,
                       child: Container(
                         padding: const EdgeInsets.all(8.0),
-                        decoration: dialogContainersDecoration[1],
+                        decoration: containerDecorations[1],
                         child: Center(
                           child: Text(
                             "Phòng ${room!.id}",
@@ -250,7 +367,7 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
                   (room == null)
                       ? const SizedBox.shrink()
                       : Container(
-                          decoration: dialogContainersDecoration[2],
+                          decoration: containerDecorations[2],
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
@@ -272,7 +389,7 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
-                      decoration: dialogContainersDecoration[3],
+                      decoration: containerDecorations[3],
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -296,7 +413,7 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
                                         textAlign: TextAlign.center)
                                     : Align(
                                         alignment: Alignment.bottomRight,
-                                        child: RoomActionButton(
+                                        child: UIActionButton(
                                           enable: !onProcess,
                                           actionId: -1,
                                           onPressed: () async {
@@ -319,5 +436,10 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return (widget.isDialog) ? roomDialog(context) : roomBox(context);
   }
 }

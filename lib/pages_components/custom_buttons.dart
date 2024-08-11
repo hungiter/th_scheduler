@@ -78,12 +78,12 @@ class MiniLoginFormButton extends StatelessWidget {
   }
 }
 
-class RoomActionButton extends StatefulWidget {
+class UIActionButton extends StatefulWidget {
   final bool enable;
   final int actionId;
   final VoidCallback onPressed;
 
-  const RoomActionButton({
+  const UIActionButton({
     Key? key,
     required this.enable,
     required this.actionId,
@@ -91,10 +91,10 @@ class RoomActionButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RoomActionButtonState createState() => _RoomActionButtonState();
+  _UIActionButtonState createState() => _UIActionButtonState();
 }
 
-class _RoomActionButtonState extends State<RoomActionButton> {
+class _UIActionButtonState extends State<UIActionButton> {
   bool _isHovered = false;
 
   @override
@@ -104,6 +104,9 @@ class _RoomActionButtonState extends State<RoomActionButton> {
       0 => Colors.red, // Huỷ
       1 => Colors.yellow, // Dời lịch hẹn
       2 => Colors.red, // Xoá lịch sử
+      3 => Colors.white, // Tải lại danh sách phòng
+      4 => Colors.white, // Tải thêm
+      5 => Colors.white, // Xoá hết
       int() => throw UnimplementedError(),
     };
 
@@ -112,6 +115,9 @@ class _RoomActionButtonState extends State<RoomActionButton> {
       0 => Colors.white, // Huỷ
       1 => Colors.grey, // Dời lịch hẹn
       2 => Colors.white, // Xoá lịch sử
+      3 => Colors.black, // Tải lại danh sách phòng
+      4 => Colors.black, // Tải thêm
+      5 => Colors.black, // Xoá hết
       int() => throw UnimplementedError(),
     };
 
@@ -120,6 +126,9 @@ class _RoomActionButtonState extends State<RoomActionButton> {
       0 => "Huỷ phòng", // Huỷ
       1 => "Dời lịch", // Dời lịch hẹn
       2 => "Xoá", // Xoá lịch sử
+      3 => "Tải lại danh sách phòng", // Tải lại danh sách phòng
+      4 => "Tải thêm", // Tải thêm
+      5 => "Xoá hết", // Xoá hết
       int() => throw UnimplementedError(),
     };
 

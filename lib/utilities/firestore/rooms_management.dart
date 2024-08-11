@@ -37,6 +37,7 @@ class RoomsManagement {
         String roomId = i.toString().padLeft(3, '0');
         await _firestore.collection("rooms").doc(roomId).set({
           'id': roomId,
+          'roomNo': i,
           'roomType': random.nextInt(3),
           'opened': true,
         });
@@ -67,6 +68,51 @@ class RoomsManagement {
       successCallback(filteredRooms);
     } catch (e) {
       errorCallBack("Lỗi khác: $e");
+    }
+  }
+
+  Future<DocumentSnapshot?> getDocumentById(Rooms rooms) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection("rooms")
+        .where("id", isEqualTo: rooms.id)
+        .get();
+    return querySnapshot.docs.first;
+  }
+
+  Future<void> fetchRoomsByLimit({
+    required int filterType,
+    required DocumentSnapshot? lastDocument,
+    required int limit,
+    required Function(String) errorCallBack,
+    required Function(List<Rooms>) successCallback,
+  }) async {
+    try {
+      CollectionReference roomsCollection = _firestore.collection("rooms");
+
+      // Query query = roomsCollection.where("opened", isEqualTo: true);
+      Query query = roomsCollection.where("opened", whereIn: [true, false]);
+
+      if (filterType != -1) {
+        query = query.where("roomType", isEqualTo: filterType);
+      }
+
+      query = query.orderBy('roomNo').limit(limit);
+
+      if (lastDocument != null) {
+        query = query.startAfterDocument(lastDocument);
+      }
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      List<QueryDocumentSnapshot> docs = querySnapshot.docs;
+
+      List<Rooms> rooms = docs.map((doc) {
+        return Rooms.fromFirestore(doc);
+      }).toList();
+
+      successCallback(rooms);
+    } catch (e, stacktrace) {
+      errorCallBack("Lỗi khi lấy dữ liệu $e\n$stacktrace");
     }
   }
 

@@ -118,10 +118,81 @@ class HistoriesManagement {
     }
   }
 
+  Future<DocumentSnapshot?> getDocumentById(Histories histories) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection("histories")
+        .where("id", isEqualTo: histories.id)
+        .get();
+    return querySnapshot.docs.first;
+  }
+
+  Future<void> fetchHistoriesByLimit({
+    required int filterStatus,
+    required DocumentSnapshot? lastDocument,
+    required int limit,
+    required Function(String) errorCallBack,
+    required Function(List<Histories>) successCallback,
+  }) async {
+    try {
+      String userId = await PreferencesManager.getUserId();
+      CollectionReference roomsCollection = _firestore.collection("histories");
+
+      Query query = roomsCollection
+          .where("userId", isEqualTo: userId)
+          .where("visible", isEqualTo: true)
+          .where("status", isEqualTo: filterStatus)
+          .orderBy('id')
+          .limit(limit);
+
+      if (lastDocument != null) {
+        query = query.startAfterDocument(lastDocument);
+      }
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      List<QueryDocumentSnapshot> docs = querySnapshot.docs;
+
+      List<Histories> histories = docs.map((doc) {
+        return Histories.fromFirestore(doc);
+      }).toList();
+
+      successCallback(histories);
+    } catch (e, stacktrace) {
+      errorCallBack("Lỗi khi lấy dữ liệu $e\n$stacktrace");
+    }
+  }
+
+  Future<void> clearHistories({
+    required int filterStatus,
+    required Function(String) errorCallBack,
+    required Function() successCallback,
+  }) async {
+    try {
+      String userId = await PreferencesManager.getUserId();
+      CollectionReference roomsCollection = _firestore.collection("histories");
+
+      Query query = roomsCollection
+          .where("userId", isEqualTo: userId)
+          .where("visible", isEqualTo: true)
+          .where("status", isEqualTo: filterStatus);
+      ;
+
+      QuerySnapshot querySnapshot = await query.get();
+
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        await doc.reference.update({"visible": false});
+      }
+
+      successCallback();
+    } catch (e, stacktrace) {
+      errorCallBack("Lỗi khi lấy dữ liệu $e\n$stacktrace");
+    }
+  }
+
   Future<void> createHistory(String roomId, DateTime dateTime,
       Function(int) bugReached, Function() finishCallback) async {
     String userId = await PreferencesManager.getUserId();
-    int docNo = await lengthHistory(true); // Total: both visible and not
+    int docNo = await lengthHistory(false); // Total: both visible and not
     String docId = "$docNo$userId ";
 
     int totalOrder = await userTotalRoomPending();

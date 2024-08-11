@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:th_scheduler/data/models.dart';
 import 'package:th_scheduler/utilities/firestore/histories_management.dart';
 import 'package:th_scheduler/utilities/firestore/staff_management.dart';
@@ -55,13 +56,33 @@ class FirestoreHandler {
     return staffId;
   }
 
-  Future<void> getAvailableRooms({
+  Future<void> initializeRoomsIfEmpty(
+      Function(String) errorCallBack, Function() finishCallBack) async {
+    try {
+      await roomsManagement.initializeRoomsIfEmpty(100);
+      finishCallBack();
+    } catch (e) {
+      errorCallBack("Lỗi tạo dữ liệu $e");
+    }
+  }
+
+  Future<void> fetchRoomsByLimit({
     int filterType = -1,
+    Rooms? lastRooms,
+    int limit = 10,
     required Function(String) errorCallBack,
     required Function(List<Rooms>) successCallback,
   }) async {
-    await roomsManagement.getAvailableRooms(
+    DocumentSnapshot? document;
+
+    if (lastRooms != null) {
+      document = await roomsManagement.getDocumentById(lastRooms);
+    }
+
+    await roomsManagement.fetchRoomsByLimit(
         filterType: filterType,
+        lastDocument: document,
+        limit: limit,
         errorCallBack: errorCallBack,
         successCallback: successCallback);
   }
@@ -128,6 +149,38 @@ class FirestoreHandler {
     }, (histories) {
       resultCallback(histories);
     });
+  }
+
+  Future<void> fetchHistoriesByLimit({
+    int filterStatus = -1,
+    Histories? lastHistory,
+    int limit = 5,
+    required Function(String) errorCallBack,
+    required Function(List<Histories>) successCallback,
+  }) async {
+    DocumentSnapshot? document;
+
+    if (lastHistory != null) {
+      document = await historiesManagement.getDocumentById(lastHistory);
+    }
+
+    await historiesManagement.fetchHistoriesByLimit(
+        filterStatus: filterStatus,
+        lastDocument: document,
+        limit: limit,
+        errorCallBack: errorCallBack,
+        successCallback: successCallback);
+  }
+
+  Future<void> clearHistories({
+    int filterStatus = -1, // or 2
+    required Function(String) errorCallBack,
+    required Function() successCallback,
+  }) async {
+    await historiesManagement.clearHistories(
+        filterStatus: filterStatus,
+        errorCallBack: errorCallBack,
+        successCallback: successCallback);
   }
 
   Future<void> userDeleteHistory(

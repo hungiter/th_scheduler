@@ -16,16 +16,15 @@ class Histories {
   //  1: Đang sử dụng
   //  2: Đã trả phòng
 
-  Histories({
-    required this.id,
-    required this.docId,
-    required this.roomId,
-    required this.userId,
-    required this.fromDate,
-    this.toDate, // Nullable
-    required this.status,
-    required this.visible,
-  });
+  Histories(
+      {required this.id,
+      required this.docId,
+      required this.roomId,
+      required this.userId,
+      required this.fromDate,
+      this.toDate, // Nullable
+      required this.status,
+      required this.visible});
 
   // Initialization method with default values
   static Histories init(int roomNumber) {
@@ -84,7 +83,7 @@ class Histories {
       'fromDate': datetimeHelper.dtString(fromDate),
       'toDate': datetimeHelper.dtString(toDate!), // Handle null values
       'status': status,
-      'visible': status
+      'visible': status,
     };
   }
 

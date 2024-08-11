@@ -9,15 +9,18 @@ import 'package:flutter/foundation.dart';
 
 import 'package:th_scheduler/utilities/firestore_handler.dart';
 import 'package:th_scheduler/services/preferences_manager.dart';
+import 'package:th_scheduler/utilities/qr_handler.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage();
+import 'homepage_constant.dart';
+
+class StaffHomePage extends StatefulWidget {
+  StaffHomePage();
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _StaffHomePageState createState() => _StaffHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _StaffHomePageState extends State<StaffHomePage> {
   final FirestoreHandler _firestoreHandler = FirestoreHandler();
   bool onLoading = true;
 
@@ -25,7 +28,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
-
     _checkAllDataNeed();
   }
 
@@ -33,7 +35,6 @@ class _HomePageState extends State<HomePage> {
     Map<String, dynamic> prefUser =
         await PreferencesManager.getUserDataFromSP();
 
-    // Re-check Preferences
     if (prefUser.isEmpty) {
       _navigationToLogin();
     }
@@ -66,9 +67,15 @@ class _HomePageState extends State<HomePage> {
         ? const Center(
             child: CircularProgressIndicator(),
           )
-        : ResponsiveHomePage(
-            mobileHomePage: MobileHome(),
-            tabletHomePage: TabletHome(),
-            desktopHomePage: DesktopHome());
+        : Scaffold(
+            appBar: staffAppBar,
+            backgroundColor: mobileBackground,
+            body: Container(
+              padding: const EdgeInsets.only(left: 5, top: 5, right: 5),
+              child: Column(
+                children: [ScanQRCode()],
+              ),
+            ),
+          );
   }
 }

@@ -11,7 +11,7 @@ class StaffManagement {
 
       await _firestore.collection('users').doc("+18079070268").set({
         'id': "+18079070268",
-        'role': 'user',
+        'role': 'staff',
         'password': '111111',
         'displayName': 'Staff',
         'isVerified': true,

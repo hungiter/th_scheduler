@@ -50,20 +50,12 @@ class AuthService {
         await _firestore
             .collection('users')
             .doc(phoneNumber)
-            .set({'otp': otp, 'isVerified': false});
+            .set({'otp': otp, 'isVerified': false, 'role': 'user'});
       } else {
-        bool isVerified = userDoc.get('isVerified');
-        if (isVerified) {
-          await _firestore
-              .collection('users')
-              .doc(phoneNumber)
-              .update({'otp': otp});
-        } else {
-          await _firestore
-              .collection('users')
-              .doc(phoneNumber)
-              .set({'otp': otp, 'isVerified': false});
-        }
+        await _firestore
+            .collection('users')
+            .doc(phoneNumber)
+            .update({'otp': otp});
       }
 
       await _twilioFlutter.sendSMS(
@@ -104,7 +96,6 @@ class AuthService {
           await _firestore.collection('users').doc(phoneNumber).update({
             'id': phoneNumber,
             'otp': FieldValue.delete(),
-            'role': 'user',
             'password': '111111',
             'displayName': 'User+$docLength',
             'isVerified': true,
@@ -145,7 +136,7 @@ class AuthService {
 
   String phoneToId(String phoneNumber) {
     List<String> partSplitter = phoneNumber.split(' ');
-    return partSplitter[0] + partSplitter[1].substring(1);
+    return "${partSplitter[0]}${int.parse(partSplitter[1])}";
   }
 
 // Function to create or update user in Firestore
