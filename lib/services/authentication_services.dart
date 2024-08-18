@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:th_scheduler/utilities/bug_handler.dart';
+
 import '../data/user.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -126,8 +128,8 @@ class AuthService {
   Future<void> signInWithPassword(String phoneNumber, String password,
       Function(String) errorListener, Function(Users) successListener) async {
     await FirestoreHandler().getUserForLogin(phoneToId(phoneNumber), password,
-        (String e) {
-      errorListener(e);
+        (eCode) {
+      errorListener(BugHandler.bugString(eCode));
     }, (Users user) {
       PreferencesManager.setUserDataToSP(user);
       successListener(user);
@@ -150,7 +152,7 @@ class AuthService {
     PreferencesManager.setUserDataToSP(Users.fromFirestore(doc));
   }
 
-  void signOut() async {
+  Future<void> signOut() async {
     PreferencesManager.removePreferences("user_model");
     PreferencesManager.removePreferences("user_id");
     await _auth.signOut();

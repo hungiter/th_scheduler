@@ -13,7 +13,7 @@ class StartedButton extends StatelessWidget {
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.lightBlueAccent),
+            MaterialStateProperty.all<Color>(Colors.lightBlueAccent),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25.0)))),
@@ -28,13 +28,12 @@ class LoginFormButton extends StatelessWidget {
   final Color txtColor;
   final VoidCallback onPressed;
 
-  const LoginFormButton(
-      {super.key,
-      required this.text,
-      required this.enable,
-      required this.btnColor,
-      required this.txtColor,
-      required this.onPressed});
+  const LoginFormButton({super.key,
+    required this.text,
+    required this.enable,
+    required this.btnColor,
+    required this.txtColor,
+    required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +56,11 @@ class MiniLoginFormButton extends StatelessWidget {
   final Color txtColor;
   final VoidCallback onPressed;
 
-  const MiniLoginFormButton(
-      {super.key,
-      required this.text,
-      required this.btnColor,
-      required this.txtColor,
-      required this.onPressed});
+  const MiniLoginFormButton({super.key,
+    required this.text,
+    required this.btnColor,
+    required this.txtColor,
+    required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +105,8 @@ class _UIActionButtonState extends State<UIActionButton> {
       3 => Colors.white, // Tải lại danh sách phòng
       4 => Colors.white, // Tải thêm
       5 => Colors.white, // Xoá hết
+      6 => const Color.fromARGB(255, 209, 255, 59), // Xác nhận nhận phòng
+      7 => Colors.green, // Xác nhận trả phòng
       int() => throw UnimplementedError(),
     };
 
@@ -118,6 +118,8 @@ class _UIActionButtonState extends State<UIActionButton> {
       3 => Colors.black, // Tải lại danh sách phòng
       4 => Colors.black, // Tải thêm
       5 => Colors.black, // Xoá hết
+      6 => Colors.black, // Xác nhận nhận phòng
+      7 => Colors.black, // Xác nhận trả phòng
       int() => throw UnimplementedError(),
     };
 
@@ -129,6 +131,8 @@ class _UIActionButtonState extends State<UIActionButton> {
       3 => "Tải lại danh sách phòng", // Tải lại danh sách phòng
       4 => "Tải thêm", // Tải thêm
       5 => "Xoá hết", // Xoá hết
+      6 => "Xác nhận nhận phòng", // Xoá hết
+      7 => "Xác nhận trả phòng", // Xoá hết
       int() => throw UnimplementedError(),
     };
 

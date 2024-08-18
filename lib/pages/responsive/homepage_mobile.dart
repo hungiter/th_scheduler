@@ -7,6 +7,7 @@ import "package:th_scheduler/pages_components/custom_dropdowns.dart";
 import "package:th_scheduler/services/notify_services.dart";
 import "package:th_scheduler/utilities/firestore_handler.dart";
 import "package:th_scheduler/utilities/qr_handler.dart";
+import "package:th_scheduler/utilities/realtime_handler.dart";
 import "../../pages_components/boxes_room.dart";
 import "main_drawer.dart";
 
@@ -20,6 +21,7 @@ class _MobileHomeState extends State<MobileHome> {
   bool dataOnload = true;
   NotifyServices notifyServices = NotifyServices();
   final FirestoreHandler _firestoreHandler = FirestoreHandler();
+  final RealtimeDatabaseHandler _databaseHandler = RealtimeDatabaseHandler();
 
   Rooms? selectionRoom;
   List<Rooms> rooms = [];
@@ -278,6 +280,10 @@ class _MobileHomeState extends State<MobileHome> {
     String keyMap = _hStatusToKeyMap(status);
     _updateHDeletesIndex(status + 1, true);
     try {
+      for (var history in mapHistories[keyMap]!) {
+        await _databaseHandler.removeHistoryQR(history.docId);
+      }
+
       await _firestoreHandler.clearHistories(
           filterStatus: status,
           errorCallBack: (error) {

@@ -5,7 +5,7 @@ const desktopBackground = Color.fromARGB(255, 64, 200, 255);
 const tabletBackground = Color.fromARGB(255, 44, 224, 230);
 const mobileBackground = Color.fromARGB(255, 44, 200, 171);
 const appName = "TH Scheduler";
-const appStaffName = "TH Scheduler - Staff";
+const appStaffName = "Staff Mobile";
 // https://www.youtube.com/watch?v=9bo1V9STW2c
 var myAppBar = AppBar(
     backgroundColor: Colors.white60,

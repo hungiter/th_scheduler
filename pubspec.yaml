@@ -23,9 +23,10 @@ dependencies:
   pinput: #^2.2.16 #OTP Widget
   fluttertoast: #^8.0.9 #UI helper (error show)
   qr_flutter: #QR Parser
+  mobile_scanner: #Mobile QR Scanner
   barcode_scan2: #QR Scanner
   path_provider: #^2.0.11 # Save image
-  image_gallery_saver: #^1.7.1 # Save image
+#  image_gallery_saver: #^1.7.1 # Save image
 
 dev_dependencies:
   flutter_test:

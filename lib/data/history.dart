@@ -8,6 +8,7 @@ class Histories {
   final String userId;
   final DateTime fromDate;
   final DateTime? toDate; // Made nullable
+  final bool haveChanged;
   final int status;
   final bool visible;
 
@@ -23,18 +24,20 @@ class Histories {
       required this.userId,
       required this.fromDate,
       this.toDate, // Nullable
+      required this.haveChanged,
       required this.status,
       required this.visible});
 
   // Initialization method with default values
-  static Histories init(int roomNumber) {
+  static Histories init() {
     return Histories(
-        id: 0,
+        id: -1,
         docId: "0-0900000000",
         roomId: "000",
         userId: "0900000000",
         fromDate: DateTime.now(),
         toDate: null,
+        haveChanged: false,
         status: 0,
         visible: true);
   }
@@ -48,10 +51,11 @@ class Histories {
         docId: doc.id,
         roomId: data['roomId'],
         userId: data['userId'],
-        fromDate: datetimeHelper.stringDt(data['fromDate'].toString()),
+        fromDate: (data['fromDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
         toDate: data['toDate'] != null
-            ? datetimeHelper.stringDt(data['toDate'].toString())
+            ? (data['toDate'] as Timestamp?)?.toDate() ?? DateTime.now()
             : null,
+        haveChanged: bool.parse(data['haveChanged'].toString()),
         status: int.parse(data['status'].toString()),
         visible: bool.parse(data['visible'].toString()));
   }
@@ -64,10 +68,11 @@ class Histories {
         docId: json['docId'],
         roomId: json['roomId'],
         userId: json['userId'],
-        fromDate: datetimeHelper.stringDt(json['fromDate'].toString()),
+        fromDate: DateTime.tryParse(json['fromDate']) ?? DateTime.now(),
         toDate: json['toDate'] != null
-            ? datetimeHelper.stringDt(json['toDate'].toString())
+            ? DateTime.tryParse(json['toDate']) ?? DateTime.now()
             : null,
+        haveChanged: bool.parse(json['haveChanged'].toString()),
         status: int.parse(json['status'].toString()),
         visible: bool.parse(json['visible'].toString()));
   }
@@ -82,6 +87,7 @@ class Histories {
       'userId': userId,
       'fromDate': datetimeHelper.dtString(fromDate),
       'toDate': datetimeHelper.dtString(toDate!), // Handle null values
+      'haveChanged': haveChanged,
       'status': status,
       'visible': status,
     };

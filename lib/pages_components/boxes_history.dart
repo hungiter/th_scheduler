@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:th_scheduler/data/history.dart';
+import 'package:th_scheduler/data/historyqr.dart';
 import 'package:th_scheduler/pages/responsive/homepage_constant.dart';
 import 'package:th_scheduler/services/notify_services.dart';
 import 'package:th_scheduler/utilities/bug_handler.dart';
 import 'package:th_scheduler/utilities/datetime_helper.dart';
 import 'package:th_scheduler/utilities/firestore_handler.dart';
 import 'package:th_scheduler/utilities/qr_handler.dart';
+import 'package:th_scheduler/utilities/realtime_handler.dart';
 
 import 'customDatePicker.dart';
 import 'custom_buttons.dart';
@@ -67,7 +69,7 @@ class HistoryCategoryList extends StatelessWidget {
                             style: Theme.of(context).textTheme.headline6,
                           ),
                         ),
-                        if (statusCode == -1)
+                        if (statusCode == -1 || statusCode == 2)
                           Expanded(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -270,9 +272,13 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
 
   final List<DateTime> _availableDates = [];
   DateTime? _selectedDate;
+
   DatetimeHelper datetimeHelper = DatetimeHelper();
   NotifyServices notifyServices = NotifyServices();
   final FirestoreHandler _firestoreHandler = FirestoreHandler();
+  final RealtimeDatabaseHandler _databaseHandler = RealtimeDatabaseHandler();
+  HistoryQR? historyQR;
+  bool onLoading = true;
 
   @override
   void initState() {
@@ -280,6 +286,18 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
     history = widget.history;
     status = history!.status;
     _generateDateList();
+
+    if (onLoading) {
+      if ([0, 1].contains(history!.status)) {
+        _databaseHandler.listenToHistoryQRChanges(history!.docId,
+            (dataChanged) {
+          if (dataChanged.status != history!.status) {
+            widget.historyRefresh();
+          }
+        });
+      }
+      onLoading = false;
+    }
   }
 
   @override
@@ -289,6 +307,7 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
       setState(() {
         history = widget.history;
         status = history!.status;
+        onLoading = true;
       });
     }
   }
@@ -311,6 +330,7 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
     });
   }
 
+  // DELETE ACTION FOR FINISHED AND CANCELLED
   void deleteSuccess() {
     notifyServices.showMessage("Xoá lịch sử thành công");
     widget.historyRefresh();
@@ -324,7 +344,10 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
     String error = "";
     await _firestoreHandler.userDeleteHistory(history!.docId, (eCode) {
       error = BugHandler.bugString(eCode);
-    }, () => deleteSuccess());
+    }, () async {
+      await _databaseHandler.removeHistoryQR(history!.docId);
+      deleteSuccess();
+    });
 
     if (error.isNotEmpty) {
       notifyServices.showErrorToast(error);
@@ -342,7 +365,28 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
   }
 
   Future<void> onScheduleAction() async {
-    widget.historyRefresh();
+    setState(() {
+      onProcess = true;
+    });
+
+    String error = "";
+    if (history!.fromDate != _selectedDate) {
+      await _firestoreHandler.userChangeDate(history!.docId, _selectedDate!,
+          (eCode) {
+        error = BugHandler.bugString(eCode);
+      }, () => deleteSuccess());
+
+      if (error.isNotEmpty) {
+        notifyServices.showErrorToast(error);
+        return;
+      }
+    } else {
+      notifyServices.showErrorToast("Lịch không có gì thay đổi");
+    }
+
+    setState(() {
+      onProcess = false;
+    });
   }
 
   void cancelSuccess() {
@@ -359,7 +403,11 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
     await _firestoreHandler.userCancelHistory(history!.docId, history!.roomId,
         (eCode) {
       error = BugHandler.bugString(eCode);
-    }, () => cancelSuccess());
+    }, () async {
+      await _databaseHandler.removeHistoryQR(history!.docId);
+      cancelSuccess();
+    });
+
     if (error.isNotEmpty) {
       notifyServices.showErrorToast(error);
       return;
@@ -422,14 +470,17 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildTitleAndValueTextRow("Phòng:", history!.roomId),
-                      buildTitleAndValueTextRow("Ngày bắt đầu:",
-                          datetimeHelper.dtString(history!.fromDate)),
-                      if (history!.toDate != null)
-                        buildTitleAndValueTextRow("Ngày kết thúc:",
-                            datetimeHelper.dtString(history!.toDate!)),
-                      if (status == 1)
+                      if (history!.status == 0)
+                        buildTitleAndValueTextRow("Ngày hẹn:",
+                            datetimeHelper.dtString(history!.fromDate)),
+                      if (history!.status >= 1)
                         buildTitleAndValueTextRow(
-                            "Trạng thái:", history!.statusToString()),
+                            "Bắt đầu:", "${history!.fromDate}"),
+                      if (history!.status == 2)
+                        buildTitleAndValueTextRow(
+                            "Kết thúc:", "${history!.toDate}"),
+                      buildTitleAndValueTextRow(
+                          "Trạng thái:", history!.statusToString()),
                     ],
                   ),
                 ),
@@ -437,68 +488,69 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
 
               const SizedBox(height: 20.0),
 
-              // Action Buttons
-              Container(
-                decoration: containerDecorations[3],
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      if (status != 0)
-                        const SizedBox.shrink()
-                      else
-                        SizedBox(
-                          width: double.infinity,
-                          child: MyDatePicker(
-                            setAsDefault: true,
-                            enable: false,
-                            dates: _availableDates,
-                            onDateSelected: _datetimeStateChange,
+              // Action Area
+              if (status != 1)
+                Container(
+                  decoration: containerDecorations[3],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        if (status != 0)
+                          const SizedBox.shrink()
+                        else
+                          SizedBox(
+                            width: double.infinity,
+                            child: MyDatePicker(
+                              setAsDefault: true,
+                              enable: false,
+                              dates: _availableDates,
+                              onDateSelected: _datetimeStateChange,
+                            ),
                           ),
+                        const SizedBox(height: 8.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (status == 0)
+                              Row(
+                                children: [
+                                  UIActionButton(
+                                    enable: !onProcess,
+                                    actionId: 0,
+                                    onPressed: () async {
+                                      await onCancelAction();
+                                      Navigator.of(context)
+                                          .pop(); // Close dialog after action
+                                    },
+                                  ),
+                                  UIActionButton(
+                                    enable: !onProcess,
+                                    actionId: 1,
+                                    onPressed: () async {
+                                      await onScheduleAction();
+                                      Navigator.of(context)
+                                          .pop(); // Close dialog after action
+                                    },
+                                  ),
+                                ],
+                              ),
+                            if (status == 2 || status == -1)
+                              UIActionButton(
+                                enable: !onProcess,
+                                actionId: 2,
+                                onPressed: () async {
+                                  await deleteAction();
+                                  Navigator.of(context)
+                                      .pop(); // Close dialog after action
+                                },
+                              ),
+                          ],
                         ),
-                      const SizedBox(height: 8.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (status == 0)
-                            Row(
-                              children: [
-                                UIActionButton(
-                                  enable: !onProcess,
-                                  actionId: 0,
-                                  onPressed: () async {
-                                    await onCancelAction();
-                                    Navigator.of(context)
-                                        .pop(); // Close dialog after action
-                                  },
-                                ),
-                                UIActionButton(
-                                  enable: !onProcess,
-                                  actionId: 1,
-                                  onPressed: () async {
-                                    await onScheduleAction();
-                                    Navigator.of(context)
-                                        .pop(); // Close dialog after action
-                                  },
-                                ),
-                              ],
-                            ),
-                          if (status == 2 || status == -1)
-                            UIActionButton(
-                              enable: !onProcess,
-                              actionId: 2,
-                              onPressed: () async {
-                                await deleteAction();
-                                Navigator.of(context)
-                                    .pop(); // Close dialog after action
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -527,14 +579,17 @@ class _HistoryDetailBoxState extends State<HistoryDetailBox> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     buildTitleAndValueTextRow("Phòng:", history!.roomId),
-                    buildTitleAndValueTextRow("Ngày bắt đầu:",
-                        datetimeHelper.dtString(history!.fromDate)),
-                    if (history!.toDate != null)
-                      buildTitleAndValueTextRow("Ngày kết thúc:",
-                          datetimeHelper.dtString(history!.toDate!)),
-                    if (status == 1)
+                    if (history!.status == 0)
+                      buildTitleAndValueTextRow("Ngày hẹn:",
+                          datetimeHelper.dtString(history!.fromDate)),
+                    if (history!.status >= 1)
                       buildTitleAndValueTextRow(
-                          "Trạng thái:", history!.statusToString()),
+                          "Bắt đầu:", "${history!.fromDate}"),
+                    if (history!.status == 2)
+                      buildTitleAndValueTextRow(
+                          "Kết thúc:", "${history!.toDate}"),
+                    buildTitleAndValueTextRow(
+                        "Trạng thái:", history!.statusToString()),
                   ],
                 ),
               ),

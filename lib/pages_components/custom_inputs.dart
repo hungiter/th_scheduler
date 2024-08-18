@@ -128,6 +128,7 @@ class PhoneInputWidget extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     showCountryPicker(
+                      countryFilter: <String>['US', 'CA', 'VN'],
                       context: context,
                       countryListTheme: const CountryListThemeData(
                         bottomSheetHeight: 550,
