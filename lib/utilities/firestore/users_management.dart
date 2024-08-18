@@ -17,20 +17,20 @@ class UsersManagement {
   }
 
   Future<void> getUserForLogin(String phone, String password,
-      Function(String) errorCallBack, Function(Users) successCallback) async {
+      Function(int) bugReached, Function(Users) successCallback) async {
     try {
       final doc = await _firestore.collection('users').doc(phone).get();
       if (doc.exists) {
         if (doc.data()?["password"] == password) {
           successCallback(Users.fromFirestore(doc));
         } else {
-          errorCallBack("Sai mật khẩu");
+          bugReached(2);
         }
       } else {
-        errorCallBack("Tài khoản không tồn tại");
+        bugReached(1);
       }
     } catch (e) {
-      errorCallBack("Lỗi: $e");
+      bugReached(-1);
     }
   }
 }

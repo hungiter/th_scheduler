@@ -47,7 +47,6 @@ class Users {
       password: data['password'] ?? '',
       displayName: data['displayName'] ?? '',
       isVerified: data['isVerified'] ?? false,
-      // Add this line
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastLogin: (data['lastLogin'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -56,16 +55,15 @@ class Users {
 
   factory Users.fromJson(Map<String, dynamic> json) {
     return Users(
-      id: json['id'] ?? '',
-      otp: json['otp'] ?? '',
-      role: json['role'] ?? '',
-      password: json['password'] ?? '',
-      displayName: json['displayName'] ?? '',
-      isVerified: json['isVerified'] ?? false,
-      // Add this line
-      createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (json['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      lastLogin: (json['lastLogin'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      id: json['id'],
+      otp: json['otp'],
+      role: json['role'],
+      password: json['password'],
+      displayName: json['displayName'],
+      isVerified: json['isVerified'] == true,
+      createdAt: DateTime.tryParse(json['createdAt']) ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt']) ?? DateTime.now(),
+      lastLogin: DateTime.tryParse(json['lastLogin']) ?? DateTime.now(),
     );
   }
 

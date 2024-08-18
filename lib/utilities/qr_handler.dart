@@ -5,9 +5,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class QrCodeWidget extends StatefulWidget {
   final String data;
@@ -21,41 +21,41 @@ class QrCodeWidget extends StatefulWidget {
 class _QrCodeWidgetState extends State<QrCodeWidget> {
   final GlobalKey _globalKey = GlobalKey();
 
-  Future<void> _captureAndSave() async {
-    try {
-      // Capture the widget as an image
-      RenderRepaintBoundary boundary = _globalKey.currentContext!
-          .findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-      // Get the directory to save the image
-      final directory = (await getApplicationDocumentsDirectory()).path;
-      final filePath =
-          '$directory/${DateTime.now().millisecondsSinceEpoch}.png';
-      final file = File(filePath);
-      await file.writeAsBytes(pngBytes);
-
-      // Save the image to the gallery
-      final result = await ImageGallerySaver.saveFile(filePath);
-      if (result['isSuccess']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image saved to gallery!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save image')),
-        );
-      }
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error capturing image: $e')),
-      );
-    }
-  }
+  // Future<void> _captureAndSave() async {
+  //   try {
+  //     // Capture the widget as an image
+  //     RenderRepaintBoundary boundary = _globalKey.currentContext!
+  //         .findRenderObject() as RenderRepaintBoundary;
+  //     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+  //     ByteData? byteData =
+  //         await image.toByteData(format: ui.ImageByteFormat.png);
+  //     Uint8List pngBytes = byteData!.buffer.asUint8List();
+  //
+  //     // Get the directory to save the image
+  //     final directory = (await getApplicationDocumentsDirectory()).path;
+  //     final filePath =
+  //         '$directory/${DateTime.now().millisecondsSinceEpoch}.png';
+  //     final file = File(filePath);
+  //     await file.writeAsBytes(pngBytes);
+  //
+  //     // Save the image to the gallery
+  //     final result = await ImageGallerySaver.saveFile(filePath);
+  //     if (result['isSuccess']) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Image saved to gallery!')),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Failed to save image')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error capturing image: $e')),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +102,10 @@ class _QrCodeWidgetState extends State<QrCodeWidget> {
         ),
         const SizedBox(height: 16.0),
         ElevatedButton(
-          onPressed: _captureAndSave,
-          child: Text('Save to Gallery'),
+          onPressed: () {
+            /*_captureAndSave*/
+          },
+          child: const Text('Save to Gallery'),
         ),
       ],
     );

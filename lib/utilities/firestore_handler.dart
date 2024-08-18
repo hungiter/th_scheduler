@@ -42,10 +42,20 @@ class FirestoreHandler {
     await _firestore.collection("histories").doc("init").delete();
   }
 
+  Future<void> getUserById(String id, Function(int) bugReached,
+      Function(Users) successCallback) async {
+    Users? users = await usersManagement.getUserByDocId(id);
+    if (users == null) {
+      bugReached(1);
+    } else {
+      successCallback(users);
+    }
+  }
+
   Future<void> getUserForLogin(String phone, String password,
-      Function(String) errorCallBack, Function(Users) successCallback) async {
-    usersManagement.getUserForLogin(phone, password, (error) {
-      errorCallBack(error);
+      Function(int) bugReached, Function(Users) successCallback) async {
+    await usersManagement.getUserForLogin(phone, password, (eCode) {
+      bugReached(eCode);
     }, (users) {
       successCallback(users);
     });
@@ -100,46 +110,7 @@ class FirestoreHandler {
         (rooms) => successCallback(rooms));
   }
 
-  // History
-  Future<void> roomOrderAndCreateHistory(String roomId, DateTime dateTime,
-      Function(int) bugReached, Function() finishCallback) async {
-    // Kiểm tra phòng
-    try {
-      await getRoomById(roomId, (eCode) {
-        bugReached(eCode);
-        return;
-      }, (room) {
-        if (!room.opened) {
-          bugReached(102);
-          return;
-        }
-      });
-    } catch (e) {
-      bugReached(-101);
-      return;
-    }
-
-    // Thêm Lịch sử
-    try {
-      int bug = 0;
-      await historiesManagement.createHistory(roomId, dateTime, (eCode) {
-        bugReached(eCode);
-        bug = eCode;
-      }, () {});
-
-      if (bug != 0) {
-        return;
-      }
-
-      // Đổi số liệu phòng
-      await setRoomOpened(roomId, false, () {
-        finishCallback();
-      });
-    } catch (e) {
-      bugReached(-203);
-      return;
-    }
-  }
+  // History ===================================================================
 
   Future<void> getUserHistories(Function(int) bugReached,
       Function(List<Histories>) resultCallback) async {
@@ -161,7 +132,8 @@ class FirestoreHandler {
     DocumentSnapshot? document;
 
     if (lastHistory != null) {
-      document = await historiesManagement.getDocumentById(lastHistory);
+      document =
+          await historiesManagement.getDocumentByDocId(lastHistory.docId);
     }
 
     await historiesManagement.fetchHistoriesByLimit(
@@ -170,6 +142,65 @@ class FirestoreHandler {
         limit: limit,
         errorCallBack: errorCallBack,
         successCallback: successCallback);
+  }
+
+  Future<void> getHistoriesByDocId(String historyId, Function(int) bugReached,
+      Function(Histories) resultCallback) async {
+    try {
+      DocumentSnapshot? doc =
+          await historiesManagement.getDocumentByDocId(historyId);
+
+      if (doc != null) {
+        resultCallback(Histories.fromFirestore(doc));
+      } else {
+        bugReached(202);
+      }
+    } catch (e) {
+      bugReached(-207);
+    }
+  }
+
+  Future<void> roomOrderAndCreateHistory(String roomId, DateTime dateTime,
+      Function(int) bugReached, Function(String) finishCallback) async {
+    // Kiểm tra phòng
+    try {
+      await getRoomById(roomId, (eCode) {
+        bugReached(eCode);
+        return;
+      }, (room) {
+        if (!room.opened) {
+          bugReached(102);
+          return;
+        }
+      });
+    } catch (e) {
+      bugReached(-101);
+      return;
+    }
+
+    // Thêm Lịch sử
+    try {
+      int bug = 0;
+      String newHistoryDocID = "";
+      await historiesManagement.createHistory(roomId, dateTime, (eCode) {
+        bugReached(eCode);
+        bug = eCode;
+      }, (docId) {
+        newHistoryDocID = docId;
+      });
+
+      if (bug != 0) {
+        return;
+      }
+
+      // Đổi số liệu phòng
+      await setRoomOpened(roomId, false, () {
+        finishCallback(newHistoryDocID);
+      });
+    } catch (e) {
+      bugReached(-203);
+      return;
+    }
   }
 
   Future<void> clearHistories({
@@ -181,6 +212,12 @@ class FirestoreHandler {
         filterStatus: filterStatus,
         errorCallBack: errorCallBack,
         successCallback: successCallback);
+  }
+
+  Future<void> userChangeDate(String docId, DateTime dateTime,
+      Function(int) bugReached, Function() finishCallback) async {
+    await historiesManagement.userChangedComingDate(
+        docId, dateTime, (p0) => bugReached, () => finishCallback);
   }
 
   Future<void> userDeleteHistory(
@@ -199,6 +236,25 @@ class FirestoreHandler {
     await historiesManagement.userCancelHistory(docId, (eCode) {
       bugReached(eCode);
     }, () {
+      finishCallback();
+    });
+  }
+
+  Future<void> roomCheckIn(
+      String docId, Function(int) bugReached, Function() finishCallback) async {
+    await historiesManagement.checkIn(docId, (eCode) {
+      bugReached(eCode);
+    }, () {
+      finishCallback();
+    });
+  }
+
+  Future<void> roomCheckOut(String docId, String roomId,
+      Function(int) bugReached, Function() finishCallback) async {
+    await historiesManagement.checkOut(docId, (eCode) {
+      bugReached(eCode);
+    }, () async {
+      await roomsManagement.setRoomOpened(roomId, true, () => null);
       finishCallback();
     });
   }

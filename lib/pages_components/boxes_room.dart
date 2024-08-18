@@ -9,6 +9,7 @@ import 'package:th_scheduler/services/notify_services.dart';
 import 'package:th_scheduler/utilities/bug_handler.dart';
 import 'package:th_scheduler/utilities/datetime_helper.dart';
 import 'package:th_scheduler/utilities/firestore_handler.dart';
+import 'package:th_scheduler/utilities/realtime_handler.dart';
 import 'custom_rows.dart';
 
 class RoomBox extends StatefulWidget {
@@ -146,9 +147,11 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
 
   final List<DateTime> _availableDates = [];
   DateTime? _selectedDate;
+
   DatetimeHelper datetimeHelper = DatetimeHelper();
   NotifyServices notifyServices = NotifyServices();
   final FirestoreHandler _firestoreHandler = FirestoreHandler();
+  final RealtimeDatabaseHandler _databaseHandler = RealtimeDatabaseHandler();
 
   @override
   void initState() {
@@ -203,7 +206,10 @@ class _RoomDetailBoxState extends State<RoomDetailBox> {
       await _firestoreHandler.roomOrderAndCreateHistory(roomId, currDate,
           (error) {
         e = BugHandler.bugString(error);
-      }, () => createSuccess());
+      }, (docId) async {
+        createSuccess();
+        _databaseHandler.saveNewHistoryQR(docId, 0);
+      });
     }
 
     if (e.isNotEmpty) {

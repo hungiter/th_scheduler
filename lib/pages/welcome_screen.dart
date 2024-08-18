@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:th_scheduler/pages/auth_otp_screen.dart';
 import 'package:th_scheduler/pages/auth_password_screen.dart';
 import 'package:th_scheduler/pages/responsive/homepage.dart';
+import 'package:th_scheduler/pages/responsive/homepage_staff.dart';
 import 'package:th_scheduler/pages_components/custom_buttons.dart';
 import 'package:th_scheduler/services/preferences_manager.dart';
 import 'package:th_scheduler/utilities/firestore_handler.dart';
@@ -40,19 +41,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } else {
       Map<String, dynamic> user = await PreferencesManager.getUserDataFromSP();
       if (user.isNotEmpty && user["id"] != "") {
-        _navigateToHomePage();
+        _navigateToHomePage(user);
       } else {
         _navigateToLoginPage();
       }
     }
   }
 
-  void _navigateToHomePage() {
-    navigatorKey.currentState?.pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => HomePage(), // Replace with your home screen
-      ),
-    );
+  void _navigateToHomePage(Map<String, dynamic> userData) {
+    if (userData["role"] == "user") {
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => HomePage(), // Replace with your home screen
+        ),
+      );
+    }
+
+    if (userData["role"] == "staff") {
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) =>
+              StaffHomePage(), // Replace with your home screen
+        ),
+      );
+    }
   }
 
   void _navigateToLoginPage() async {

@@ -118,10 +118,10 @@ class HistoriesManagement {
     }
   }
 
-  Future<DocumentSnapshot?> getDocumentById(Histories histories) async {
+  Future<DocumentSnapshot?> getDocumentByDocId(String docId) async {
     QuerySnapshot querySnapshot = await _firestore
         .collection("histories")
-        .where("id", isEqualTo: histories.id)
+        .where("docId", isEqualTo: docId)
         .get();
     return querySnapshot.docs.first;
   }
@@ -190,12 +190,13 @@ class HistoriesManagement {
   }
 
   Future<void> createHistory(String roomId, DateTime dateTime,
-      Function(int) bugReached, Function() finishCallback) async {
+      Function(int) bugReached, Function(String) finishCallback) async {
     String userId = await PreferencesManager.getUserId();
     int docNo = await lengthHistory(false); // Total: both visible and not
-    String docId = "$docNo$userId ";
 
     int totalOrder = await userTotalRoomPending();
+    DateTime now = DateTime.now();
+    DateTime date = DateTime(now.year, now.month, now.day);
 
     if (totalOrder >= 3) {
       bugReached(201);
@@ -203,19 +204,51 @@ class HistoriesManagement {
     }
 
     try {
+      DocumentReference newDocRef =
+          await _firestore.collection("histories").add({});
+      String docId = newDocRef.id;
+
       await _firestore.collection("histories").doc(docId).set({
         'id': docNo,
         'docId': docId,
         'roomId': roomId,
         'userId': userId,
-        'fromDate': _datetimeHelper.dtString(dateTime),
+        'fromDate': Timestamp.fromDate(date),
+        'haveChanged': false,
         'status': 0,
         'visible': true
       });
 
-      finishCallback();
+      finishCallback(docId);
     } catch (e) {
       bugReached(-202);
+    }
+  }
+
+  Future<void> userChangedComingDate(String docId, DateTime dateTime,
+      Function(int) bugReached, Function() finishCallback) async {
+    try {
+      DocumentSnapshot? doc = await getDocumentByDocId(docId);
+      if (doc == null) {
+        bugReached(202);
+        return;
+      }
+      ;
+
+      Histories history = Histories.fromFirestore(doc);
+      if (history.haveChanged) {
+        bugReached(203);
+        return;
+      }
+
+      await _firestore.collection("histories").doc(docId).set({
+        'fromDate': _datetimeHelper.dtString(dateTime),
+        'haveChanged': true
+      });
+
+      finishCallback();
+    } catch (e) {
+      bugReached(-206);
     }
   }
 
@@ -247,6 +280,42 @@ class HistoriesManagement {
             .collection("histories")
             .doc(docId)
             .update({"status": -1});
+
+        finishCallback();
+      } else {
+        bugReached(202);
+        return;
+      }
+    } catch (e) {
+      bugReached(-205);
+    }
+  }
+
+  Future<void> checkIn(
+      String docId, Function(int) bugReached, Function() finishCallback) async {
+    try {
+      bool exist = await docExist(docId);
+      if (exist) {
+        await _firestore.collection("histories").doc(docId).update(
+            {"status": 1, "fromDate": Timestamp.fromDate(DateTime.now())});
+
+        finishCallback();
+      } else {
+        bugReached(202);
+        return;
+      }
+    } catch (e) {
+      bugReached(-205);
+    }
+  }
+
+  Future<void> checkOut(
+      String docId, Function(int) bugReached, Function() finishCallback) async {
+    try {
+      bool exist = await docExist(docId);
+      if (exist) {
+        await _firestore.collection("histories").doc(docId).update(
+            {"status": 2, "toDate": Timestamp.fromDate(DateTime.now())});
 
         finishCallback();
       } else {

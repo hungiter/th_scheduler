@@ -1,6 +1,8 @@
+import 'package:th_scheduler/data/historyqr.dart';
 import 'package:th_scheduler/data/models.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:th_scheduler/utilities/datetime_helper.dart';
+import 'package:th_scheduler/utilities/realtime/historyqr_management.dart';
 
 class RealtimeDatabaseHandler {
   final DatabaseReference _dbRef = FirebaseDatabase.instance.ref();
@@ -63,5 +65,27 @@ class RealtimeDatabaseHandler {
       }
       return messages;
     });
+  }
+
+  final HistoryQRManagement historyQRManagement = HistoryQRManagement();
+
+  Future<void> saveNewHistoryQR(String docId, int status) async {
+    historyQRManagement.saveToDatabase(docId, status);
+  }
+
+  Future<void> updateHistoryQR(String id, int status) async {
+    historyQRManagement.updateDatabase(id, status);
+  }
+  Future<void> removeHistoryQR(String id) async{
+    historyQRManagement.removeDatabase(id);
+  }
+
+  Future<HistoryQR?> getHistoryQR(String id) async {
+    return await historyQRManagement.getFromDatabase(id);
+  }
+
+  void listenToHistoryQRChanges(
+      String id, void Function(HistoryQR) onDataChanged) {
+    historyQRManagement.listenToChanges(id, onDataChanged);
   }
 }
